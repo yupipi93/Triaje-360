@@ -4,7 +4,37 @@ const jwt = require('jsonwebtoken');
 const config = require('../config').config;
 const admin  = require('../config').admin;
 
-const login = () => {
+const login = (body) => {
+return new Promise((resolve, reject) => {
+  const { email, password } = body;
+  console.log(email, password);
+  db.query('SELECT * FROM users WHERE email = ?', [email], (err, results) => {
+    if (err) return reject(err);
+    console.log(results);
+    if (results.length == 0) {
+      return reject({ status: 404, message: 'Usuario no encontrado' });
+    }
+    const user = results[0];
+    bcrypt.compare(password, user.password, (err, isMatch) => {
+      if (err) return reject(err);
+      if (!isMatch) {
+        return reject({ status: 401, message: 'Contraseña incorrecta' });
+      }
+      const token = jwt.sign({ id: user.id }, config.JWT_SECRET, { expiresIn: '1h' });
+      resolve({ 
+        message: 'Inicio de sesión exitoso',
+        user: {
+          email: user.email,
+          nickname: user.nickname,  
+          role: user.role
+        }, 
+        token });
+    });
+  });
+})
+}
+
+const iniUser0 = () => {
   return new Promise((resolve, reject) => {
     db.query('SELECT COUNT (*) as numusuarios FROM users', (err, results) => {
       if (err) return reject(err);
@@ -37,5 +67,5 @@ const login = () => {
 };
 
 module.exports = {
-  login
+  iniUser0, login
 };

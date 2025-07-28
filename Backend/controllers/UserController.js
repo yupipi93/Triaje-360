@@ -4,11 +4,21 @@ const userService = require('../services/UserServices'); // Importar el servicio
 // Obtener todos los usuarios
 const login = async (req, res) => {
   try {
-    const users = await userService.login();
+    const users = await userService.login(req.body);
     res.status(200).json(users);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
+const iniUser0 = async () => {
+  try {
+    const result = await userService.iniUser0();
+    return( result );
+  } catch (error) {
+    return({ message: error.message });
+  }
+};
+
 module.exports = {
-  login};
+  login, iniUser0};
