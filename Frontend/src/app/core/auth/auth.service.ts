@@ -3,6 +3,8 @@ import { inject, Injectable } from '@angular/core';
 import { AuthUtils } from 'app/core/auth/auth.utils';
 import { UserService } from 'app/core/user/user.service';
 import { catchError, Observable, of, switchMap, throwError } from 'rxjs';
+import { environment } from '../../../enviroments/enviroments';
+
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -58,7 +60,7 @@ export class AuthService {
             return throwError('User is already logged in.');
         }
 
-        return this._httpClient.post('http://localhost:3000/api/users/login', credentials).pipe(
+        return this._httpClient.post(environment.apiUrl+environment.usr.login, credentials).pipe(
             switchMap((response: any) => {
                 console.log(response);
                 // Store the access token in the local storage
