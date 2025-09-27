@@ -2,11 +2,12 @@
 <fuse-loading-bar></fuse-loading-bar>
 
 <!-- Navigation -->
-<fuse-vertical-navigation
+@if(user.role=="admin"){
+    <fuse-vertical-navigation
     class="dark bg-gray-900 print:hidden"
     [mode]="isScreenSmall ? 'over' : 'side'"
     [name]="'mainNavigation'"
-    [navigation]="navigation.default"
+    [navigation]="navigation.admin"
     [opened]="!isScreenSmall"
 >
     <!-- Navigation header hook -->
@@ -28,7 +29,63 @@
         </div>
     </ng-container>
 </fuse-vertical-navigation>
-
+}
+@if(user.role=="prof"){
+    <fuse-vertical-navigation
+    class="dark bg-gray-900 print:hidden"
+    [mode]="isScreenSmall ? 'over' : 'side'"
+    [name]="'mainNavigation'"
+    [navigation]="navigation.prof"
+    [opened]="!isScreenSmall"
+>
+    <!-- Navigation header hook -->
+    <ng-container fuseVerticalNavigationContentHeader>
+        <!-- Logo -->
+        <div class="flex h-20 items-center p-6 pb-0">
+            <!-- Light version -->
+            <img
+                class="w-30 dark:hidden"
+                src="images/logo/logo-text.svg"
+                alt="Logo image"
+            />
+            <!-- Dark version -->
+            <img
+                class="hidden w-30 dark:flex"
+                src="images/logo/logo-text-on-dark.svg"
+                alt="Logo image"
+            />
+        </div>
+    </ng-container>
+</fuse-vertical-navigation>
+}
+@if(user.role=="alu"){
+    <fuse-vertical-navigation
+    class="dark bg-gray-900 print:hidden"
+    [mode]="isScreenSmall ? 'over' : 'side'"
+    [name]="'mainNavigation'"
+    [navigation]="navigation.alu"
+    [opened]="!isScreenSmall"
+>
+    <!-- Navigation header hook -->
+    <ng-container fuseVerticalNavigationContentHeader>
+        <!-- Logo -->
+        <div class="flex h-20 items-center p-6 pb-0">
+            <!-- Light version -->
+            <img
+                class="w-30 dark:hidden"
+                src="images/logo/logo-text.svg"
+                alt="Logo image"
+            />
+            <!-- Dark version -->
+            <img
+                class="hidden w-30 dark:flex"
+                src="images/logo/logo-text-on-dark.svg"
+                alt="Logo image"
+            />
+        </div>
+    </ng-container>
+</fuse-vertical-navigation>
+}
 <!-- Wrapper -->
 <div class="flex w-full min-w-0 flex-auto flex-col">
     <!-- Header -->

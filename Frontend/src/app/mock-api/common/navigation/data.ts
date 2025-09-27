@@ -1,7 +1,14 @@
 /* eslint-disable */
 import { FuseNavigationItem } from '@fuse/components/navigation';
 
-export const defaultNavigation: FuseNavigationItem[] = [
+export const adminNavigation: FuseNavigationItem[] = [
+    {
+        id   : 'example',
+        title: 'Example',
+        type : 'basic',
+        icon : 'heroicons_outline:chart-pie',
+        link : '/example'
+    },
     {
         id   : 'example',
         title: 'Example',
@@ -10,16 +17,17 @@ export const defaultNavigation: FuseNavigationItem[] = [
         link : '/example'
     }
 ];
-export const compactNavigation: FuseNavigationItem[] = [
+export const profNavigation: FuseNavigationItem[] = [
     {
         id   : 'example',
         title: 'Example',
         type : 'basic',
         icon : 'heroicons_outline:chart-pie',
         link : '/example'
-    }
+    },
+    
 ];
-export const futuristicNavigation: FuseNavigationItem[] = [
+export const aluNavigation: FuseNavigationItem[] = [
     {
         id   : 'example',
         title: 'Example',

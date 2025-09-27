@@ -19,7 +19,8 @@ import { SearchComponent } from 'app/layout/common/search/search.component';
 import { ShortcutsComponent } from 'app/layout/common/shortcuts/shortcuts.component';
 import { UserComponent } from 'app/layout/common/user/user.component';
 import { Subject, takeUntil } from 'rxjs';
-
+import { UserService } from 'app/core/user/user.service';
+import { User } from 'app/core/user/user.types';
 @Component({
     selector: 'classic-layout',
     templateUrl: './classic.component.html',
@@ -43,6 +44,7 @@ import { Subject, takeUntil } from 'rxjs';
 export class ClassicLayoutComponent implements OnInit, OnDestroy {
     isScreenSmall: boolean;
     navigation: Navigation;
+    user:User;
     private _unsubscribeAll: Subject<any> = new Subject<any>();
 
     /**
@@ -53,7 +55,8 @@ export class ClassicLayoutComponent implements OnInit, OnDestroy {
         private _router: Router,
         private _navigationService: NavigationService,
         private _fuseMediaWatcherService: FuseMediaWatcherService,
-        private _fuseNavigationService: FuseNavigationService
+        private _fuseNavigationService: FuseNavigationService,
+        private _userService:UserService
     ) {}
 
     // -----------------------------------------------------------------------------------------------------
@@ -75,6 +78,13 @@ export class ClassicLayoutComponent implements OnInit, OnDestroy {
      * On init
      */
     ngOnInit(): void {
+          this._userService.user$
+            .pipe(takeUntil(this._unsubscribeAll))
+            .subscribe((user:User)=>{
+                this.user=user;
+                console.log(this.user);
+            })
+        
         // Subscribe to navigation data
         this._navigationService.navigation$
             .pipe(takeUntil(this._unsubscribeAll))
@@ -115,7 +125,7 @@ export class ClassicLayoutComponent implements OnInit, OnDestroy {
             this._fuseNavigationService.getComponent<FuseVerticalNavigationComponent>(
                 name
             );
-
+            console.log(navigation);
         if (navigation) {
             // Toggle the opened status
             navigation.toggle();

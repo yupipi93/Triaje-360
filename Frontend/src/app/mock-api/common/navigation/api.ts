@@ -2,21 +2,21 @@ import { Injectable } from '@angular/core';
 import { FuseNavigationItem } from '@fuse/components/navigation';
 import { FuseMockApiService } from '@fuse/lib/mock-api';
 import {
-    compactNavigation,
-    defaultNavigation,
-    futuristicNavigation,
+    profNavigation,
+    adminNavigation,
+    aluNavigation,
     horizontalNavigation,
 } from 'app/mock-api/common/navigation/data';
 import { cloneDeep } from 'lodash-es';
 
 @Injectable({ providedIn: 'root' })
 export class NavigationMockApi {
-    private readonly _compactNavigation: FuseNavigationItem[] =
-        compactNavigation;
-    private readonly _defaultNavigation: FuseNavigationItem[] =
-        defaultNavigation;
-    private readonly _futuristicNavigation: FuseNavigationItem[] =
-        futuristicNavigation;
+    private readonly _profNavigation: FuseNavigationItem[] =
+        profNavigation;
+    private readonly _adminNavigation: FuseNavigationItem[] =
+        adminNavigation;
+    private readonly _aluNavigation: FuseNavigationItem[] =
+        aluNavigation;
     private readonly _horizontalNavigation: FuseNavigationItem[] =
         horizontalNavigation;
 
@@ -41,22 +41,22 @@ export class NavigationMockApi {
         // -----------------------------------------------------------------------------------------------------
         this._fuseMockApiService.onGet('api/common/navigation').reply(() => {
             // Fill compact navigation children using the default navigation
-            this._compactNavigation.forEach((compactNavItem) => {
-                this._defaultNavigation.forEach((defaultNavItem) => {
-                    if (defaultNavItem.id === compactNavItem.id) {
-                        compactNavItem.children = cloneDeep(
-                            defaultNavItem.children
+            this._profNavigation.forEach((profNavItem) => {
+                this._adminNavigation.forEach((adminNavItem) => {
+                    if (adminNavItem.id === profNavItem.id) {
+                        profNavItem.children = cloneDeep(
+                            adminNavItem.children
                         );
                     }
                 });
             });
 
             // Fill futuristic navigation children using the default navigation
-            this._futuristicNavigation.forEach((futuristicNavItem) => {
-                this._defaultNavigation.forEach((defaultNavItem) => {
-                    if (defaultNavItem.id === futuristicNavItem.id) {
-                        futuristicNavItem.children = cloneDeep(
-                            defaultNavItem.children
+            this._aluNavigation.forEach((aluNavItem) => {
+                this._adminNavigation.forEach((adminNavItem) => {
+                    if (adminNavItem.id === aluNavItem.id) {
+                        aluNavItem.children = cloneDeep(
+                            adminNavItem.children
                         );
                     }
                 });
@@ -64,10 +64,10 @@ export class NavigationMockApi {
 
             // Fill horizontal navigation children using the default navigation
             this._horizontalNavigation.forEach((horizontalNavItem) => {
-                this._defaultNavigation.forEach((defaultNavItem) => {
-                    if (defaultNavItem.id === horizontalNavItem.id) {
+                this._adminNavigation.forEach((adminNavItem) => {
+                    if (adminNavItem.id === horizontalNavItem.id) {
                         horizontalNavItem.children = cloneDeep(
-                            defaultNavItem.children
+                            adminNavItem.children
                         );
                     }
                 });
@@ -77,9 +77,9 @@ export class NavigationMockApi {
             return [
                 200,
                 {
-                    compact: cloneDeep(this._compactNavigation),
-                    default: cloneDeep(this._defaultNavigation),
-                    futuristic: cloneDeep(this._futuristicNavigation),
+                    prof: cloneDeep(this._profNavigation),
+                    admin: cloneDeep(this._adminNavigation),
+                    alu: cloneDeep(this._aluNavigation),
                     horizontal: cloneDeep(this._horizontalNavigation),
                 },
             ];
