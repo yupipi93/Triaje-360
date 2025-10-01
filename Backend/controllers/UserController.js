@@ -34,14 +34,14 @@ const getAllUsers = async (req, res) => {
   }
   });
 };
-const getUsersfromAsignature = async (req, res) => {
+const getAlusfromAsignature = async (req, res) => {
   jwt.comprobartoken(req, res,function(){
     if (req.role !== 'profesor' && req.role !== 'admin') {
       return res.status(403).json({ message: 'Acceso denegado' });
     } 
   });
     try {
-      const users = await userService.getUsersfromAsignature(req.params.idAsignatura);
+      const users = await userService.getAlusfromAsignature(req.params.idAsignatura);
       res.status(200).json(users);
     } catch (error) {
       res.status(500).json({ message: error.message });

@@ -82,7 +82,7 @@ const getAllUsers = () => {
   });
 }
 
-const getUsersfromAsignature = (idAsignatura) => {
+const getAlusfromAsignature = (idAsignatura) => {
   return new Promise((resolve, reject) => {
     db.query('SELECT u.id, u.email, u.nickname FROM users u JOIN users_asignatura ua ON u.id = ua.alumno WHERE asignatura = ?', [idAsignatura], (err, results) => { 
       if (err) return reject(err);
