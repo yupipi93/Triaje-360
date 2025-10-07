@@ -11,4 +11,7 @@ router.get('/:idAsignatura/prof', asignaturasController.getAsignaturesFromProf);
 router.post('/:idAsignatura/alu/:idUser', asignaturasController.postAlutoAsignature);  // Ruta para asignar un usuario a una asignatura
 router.post('/:idAsignatura/prof/:idUser', asignaturasController.postProftoAsignature);  // Ruta para asignar un usuario a una asignatura
 
+router.post('/:idAsignatura/:idUser', asignaturasController.postProftoAsignature);  // Ruta para asignar un usuario a una asignatura
+
+
 module.exports = router;

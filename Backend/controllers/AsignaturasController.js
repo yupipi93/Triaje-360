@@ -29,6 +29,23 @@ const postAsignatura = async (req, res) => {
         }
     });
 };
+
+
+const postUsertoAsignature = async (req, res) => {
+    jwt.comprobartoken(req, res, async function () {
+        if (req.role !== 'admin') {
+            return res.status(403).json({ message: 'Acceso denegado' });
+        }
+        try {
+            const asignatura = await asignaturasService.postAlutoAsignature(req.params.idAsignatura, req.params.idUser);
+            res.status(201).json(asignatura);
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
+    });
+};
+
+
 const postAlutoAsignature = async (req, res) => {
     jwt.comprobartoken(req, res, async function () {
         if (req.role !== 'admin') {
@@ -42,6 +59,8 @@ const postAlutoAsignature = async (req, res) => {
         }
     });
 };
+
+
 const postProftoAsignature = async (req, res) => {
     jwt.comprobartoken(req, res, async function () {
         if (req.role !== 'admin') {
