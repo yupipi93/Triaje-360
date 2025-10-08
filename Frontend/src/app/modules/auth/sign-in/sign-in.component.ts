@@ -54,7 +54,7 @@ export class AuthSignInComponent implements OnInit {
         private _authService: AuthService,
         private _formBuilder: UntypedFormBuilder,
         private _router: Router
-    ) {}
+    ) { }
 
     // -----------------------------------------------------------------------------------------------------
     // @ Lifecycle hooks
@@ -93,20 +93,26 @@ export class AuthSignInComponent implements OnInit {
 
         // Hide the alert
         this.showAlert = false;
+        console.log('estoy');
+        const returnUrl = ''
+        console.log(this._activatedRoute.snapshot.queryParamMap.get('returnUrl') || '/signed-in-redirect');
 
+
+        this._router.navigate([returnUrl]);
+        return;
         // Sign in
         this._authService.signIn(this.signInForm.value).subscribe(
             (response) => {
                 console.log(response);
                 // Re-enable the form
-               
-                if(response.message=="Inicio de sesión exitoso"){
-            
+
+                if (response.message == "Inicio de sesión exitoso") {
+
                     // Navigate to the return URL
-                    const returnUrl =''
+                    const returnUrl = ''
                     this._activatedRoute.snapshot.queryParamMap.get('returnUrl') ||
-                    '/signed-in-redirect';
-                this._router.navigate([returnUrl]);
+                        '/signed-in-redirect';
+                    this._router.navigate([returnUrl]);
                 }
             },
             (error) => {
