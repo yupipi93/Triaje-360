@@ -43,25 +43,76 @@
         }
     </div>
 
-    <!-- Main -->
     <div class="flex flex-auto overflow-hidden">
         <!-- Products list -->
         <div class="flex flex-auto flex-col overflow-hidden sm:mb-18 sm:overflow-y-auto">
-            @if (asignaturas.length != 0) {
+            @if (asignaturas.length > 0) {
+
             <div class="grid">
                 <!-- Header -->
-                <div class="inventory-grid text-secondary sticky top-0 z-10 flex  bg-gray-50 px-4 py-2 text-md font-semibold shadow dark:bg-black dark:bg-opacity-5 md:px-6 ">
-                     <div class="flex-[0.5] ml-4">Id</div>  <!-- Disminuir tamaño de la columna SKU -->
-                     <div class="flex-[0.8]">Codigo</div>      <!-- Disminuir tamaño de la columna Name -->
-                     <div class="flex-[0.6] hidden sm:block">Nombre</div>  <!-- Disminuir tamaño de Price -->
-                     <div class="flex-[0.6] hidden lg:block">Curso</div>  <!-- Disminuir tamaño de Stock -->
-                     <div class="flex-[0.6] hidden lg:block">Opciones</div>  <!-- Disminuir tamaño de Stock -->
+                <div
+                    class="inventory-grid text-secondary sticky top-0 z-10 grid gap-4 bg-gray-50 px-6 py-4 text-lg font-semibold shadow dark:bg-black dark:bg-opacity-5 md:px-8">
+                    <div></div>
+                    <div class="hidden md:block">
+                        Curso
+                    </div>
+                    <div class="sm:block">Codigo</div>
+                    <div class="hidden sm:block">
+                        Nombre
+                    </div>
+                    <div class="hidden lg:block">
+                        Opciones
+                    </div>
+                    <div></div>
 
                 </div>
+                <!-- Rows -->
 
-                <!-- Aquí ya no hay ejemplo de producto -->
+
+
+            </div>
+            @for(asignatura of asignaturas;
+            track trackByFn($index, asignatura)) {
+            <div
+                class="inventory-grid text-secondary sticky top-0 z-10 grid gap-4  px-6 py-4 text-lg font-semibold  md:px-8">
+                <div></div>
+                <div class="hidden md:block text-secondary">
+                    {{ asignatura.curso }}
+                </div>
+                <div class="sm:block text-secondary">
+                    {{ asignatura.codigo }}
+                </div>
+                <div class="hidden sm:block text-secondary">
+                    {{ asignatura.nombre }}
+                </div>
+                
+                <div class="flex space-x-2">
+                    <button mat-icon-button color="primary" (click)="editAsignatura(asignatura)">
+                        <mat-icon [svgIcon]="'heroicons_outline:pencil'"></mat-icon>
+                    </button>
+                    <button mat-icon-button color="warn" (click)="deleteAsignatura(asignatura.id)">
+                        <mat-icon [svgIcon]="'heroicons_outline:trash'"></mat-icon>
+                    </button>
+                <button mat-icon-button color="primary" (click)="showAsignatura(asignatura.id)">
+                        <mat-icon [svgIcon]="'heroicons_outline:user'"></mat-icon>
+                    </button>
+                </div>
+                <div></div>
             </div>
             }
+
+            }@else {
+            <div class="flex flex-1 flex-col items-center justify-center px-4 text-center sm:px-6 lg:px-8">
+                <mat-icon class="mb-4 text-6xl text-secondary" [svgIcon]="'heroicons_outline:folder-open'"></mat-icon>
+                <h2 class="mb-2 text-2xl font-bold text-secondary">No hay asignaturas</h2>
+                <p class="mb-6 text-secondary">Parece que no tienes asignaturas. Haz clic en "Add" para crear
+                    una
+                    nueva.</p>
+            </div>
+            }
+
+
         </div>
+
     </div>
 </div>

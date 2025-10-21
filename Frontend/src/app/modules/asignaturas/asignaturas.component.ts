@@ -19,7 +19,27 @@ import { AsignaturasService } from 'app/core/asignaturas/asignaturas.service';
     FormsModule,
     ReactiveFormsModule
   ],
-  templateUrl: './asignaturas.component.html'
+  templateUrl: './asignaturas.component.html',
+  styles: [
+        /* language=SCSS */
+        `
+            .inventory-grid {
+                grid-template-columns: 48px auto 40px;
+
+                @screen sm {
+                    grid-template-columns: 48px auto 112px 72px;
+                }
+
+                @screen md {
+                    grid-template-columns: 48px 112px auto 112px 72px;
+                }
+
+                @screen lg {
+                    grid-template-columns: 20px 112px 112px 1100px 96px 40px;
+                }
+            }
+        `,
+    ]
 })
 export class AsignaturasComponent implements OnInit {
   showModal = false;
@@ -62,4 +82,13 @@ ngOnInit(): void {
     );
     
   }
+   /**
+     * Track by function for ngFor loops
+     *
+     * @param index
+     * @param item
+     */
+    trackByFn(index: number, item: any): any {
+        return item.id || index;
+    }
 }
