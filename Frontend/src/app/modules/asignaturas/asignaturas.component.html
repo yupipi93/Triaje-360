@@ -1,21 +1,16 @@
 <div class="bg-card flex min-w-0 flex-auto flex-col dark:bg-transparent sm:absolute sm:inset-0 sm:overflow-hidden">
     <!-- Header -->
-    <div
-        class="relative flex flex-0 flex-col border-b px-6 py-8 sm:flex-row sm:items-center sm:justify-between md:px-8">
-        <!-- Loader -->
-
+    <div class="relative flex flex-0 flex-col border-b px-6 py-8 sm:flex-row sm:items-center sm:justify-between md:px-8">
         <!-- Title -->
         <div class="text-4xl font-extrabold tracking-tight">Asignaturas</div>
         <!-- Actions -->
         <div class="mt-6 flex shrink-0 items-center sm:ml-4 sm:mt-0">
-
             <!-- Add product button -->
             <button class="ml-4" mat-flat-button [color]="'primary'" (click)="openModal()">
                 <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
                 <span class="ml-2 mr-1">Add</span>
             </button>
         </div>
-
 
         <!-- Modal -->
         @if (showModal) {
@@ -26,16 +21,14 @@
                     <mat-form-field class="w-full mb-4">
                         <mat-label>Nombre</mat-label>
                         <input matInput placeholder="Nombre" formControlName="nombre">
-                        @if (asignaturaForm.get('nombre').hasError('required') && asignaturaForm.get('nombre').touched)
-                        {
+                        @if (asignaturaForm.get('nombre').hasError('required') && asignaturaForm.get('nombre').touched) {
                         <mat-error>El nombre es obligatorio</mat-error>
                         }
                     </mat-form-field>
                     <mat-form-field class="w-full mb-4">
                         <mat-label>Apellido</mat-label>
                         <input matInput placeholder="Apellido" formControlName="apellido">
-                        @if (asignaturaForm.get('apellido').hasError('required') &&
-                        asignaturaForm.get('apellido').touched) {
+                        @if (asignaturaForm.get('apellido').hasError('required') && asignaturaForm.get('apellido').touched) {
                         <mat-error>El apellido es obligatorio</mat-error>
                         }
                     </mat-form-field>
@@ -50,34 +43,24 @@
         }
     </div>
 
-    <!--Main-->
+    <!-- Main -->
     <div class="flex flex-auto overflow-hidden">
         <!-- Products list -->
         <div class="flex flex-auto flex-col overflow-hidden sm:mb-18 sm:overflow-y-auto">
             @if (asignaturas.length != 0) {
             <div class="grid">
                 <!-- Header -->
-                <div
-                    class="inventory-grid text-secondary sticky top-0 z-10 grid gap-4 bg-gray-50 px-6 py-4 text-md font-semibold shadow dark:bg-black dark:bg-opacity-5 md:px-8">
-                    <div></div>
-                    <div class="hidden md:block">
-                        SKU
-                    </div>
-                    <div [mat-sort-header]="'name'">Name</div>
-                    <div class="hidden sm:block">
-                        Price
-                    </div>
-                    <div class="hidden lg:block">
-                        Stock
-                    </div>
-                    <div class="hidden lg:block">
-                        Active
-                    </div>
-                    <div class="hidden sm:block">Details</div>
+                <div class="inventory-grid text-secondary sticky top-0 z-10 flex  bg-gray-50 px-4 py-2 text-md font-semibold shadow dark:bg-black dark:bg-opacity-5 md:px-6 ">
+                     <div class="flex-[0.5] ml-4">Id</div>  <!-- Disminuir tamaño de la columna SKU -->
+                     <div class="flex-[0.8]">Codigo</div>      <!-- Disminuir tamaño de la columna Name -->
+                     <div class="flex-[0.6] hidden sm:block">Nombre</div>  <!-- Disminuir tamaño de Price -->
+                     <div class="flex-[0.6] hidden lg:block">Curso</div>  <!-- Disminuir tamaño de Stock -->
+                     <div class="flex-[0.6] hidden lg:block">Opciones</div>  <!-- Disminuir tamaño de Stock -->
+
                 </div>
 
+                <!-- Aquí ya no hay ejemplo de producto -->
             </div>
-          
             }
         </div>
     </div>

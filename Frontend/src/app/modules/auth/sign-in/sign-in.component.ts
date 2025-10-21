@@ -91,15 +91,7 @@ export class AuthSignInComponent implements OnInit {
         // Disable the form
         this.signInForm.disable();
 
-        // Hide the alert
-        this.showAlert = false;
-        console.log('estoy');
-        const returnUrl = ''
-        console.log(this._activatedRoute.snapshot.queryParamMap.get('returnUrl') || '/signed-in-redirect');
-
-
-        this._router.navigate([returnUrl]);
-        return;
+        
         // Sign in
         this._authService.signIn(this.signInForm.value).subscribe(
             (response) => {
