@@ -6,7 +6,7 @@
         <!-- Actions -->
         <div class="mt-6 flex shrink-0 items-center sm:ml-4 sm:mt-0">
             <!-- Add product button -->
-            <button class="ml-4" mat-flat-button [color]="'primary'" (click)="openModal()">
+            <button class="ml-4" mat-flat-button [color]="'primary'" (click)="openNewEditModal()">
                 <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
                 <span class="ml-2 mr-1">Add</span>
             </button>
@@ -16,7 +16,7 @@
         @if (showModal) {
         <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
             <div class="bg-white p-8 rounded shadow-lg w-96">
-                <h2 class="text-xl font-bold mb-4">Agregar Asignatura</h2>
+                <h2 class="text-xl font-bold mb-4">{{ isEditMode ? 'Editar Asignatura' : 'Agregar Asignatura' }}</h2>
                 <form [formGroup]="asignaturaForm">
                     <mat-form-field class="w-full mb-4">
                         <mat-label>Nombre</mat-label>
@@ -26,16 +26,24 @@
                         }
                     </mat-form-field>
                     <mat-form-field class="w-full mb-4">
-                        <mat-label>Apellido</mat-label>
-                        <input matInput placeholder="Apellido" formControlName="apellido">
-                        @if (asignaturaForm.get('apellido').hasError('required') && asignaturaForm.get('apellido').touched) {
-                        <mat-error>El apellido es obligatorio</mat-error>
+                        <mat-label>Codigo</mat-label>
+                        <input matInput placeholder="Codigo" formControlName="codigo">
+                        @if (asignaturaForm.get('codigo').hasError('required') && asignaturaForm.get('codigo').touched) {
+                        <mat-error>El codigo es obligatorio</mat-error>
+                        }
+                    </mat-form-field>
+
+                    <mat-form-field class="w-full mb-4">
+                        <mat-label>Curso</mat-label>
+                        <input matInput placeholder="Curso" formControlName="curso">
+                        @if (asignaturaForm.get('curso').hasError('required') && asignaturaForm.get('curso').touched) {
+                        <mat-error>El curso es obligatorio</mat-error>
                         }
                     </mat-form-field>
 
                     <div class="flex justify-end gap-2">
-                        <button mat-button type="button" (click)="closeModal()">Cancelar</button>
-                        <button mat-flat-button color="primary" type="button" (click)="submitForm()">Guardar</button>
+                        <button mat-button type="button" (click)="closeNewEditModal()">Cancelar</button>
+                        <button mat-flat-button color="primary" type="button" (click)="submitForm()">{{ isEditMode ? 'Actualizar' : 'Guardar' }}</button>
                     </div>
                 </form>
             </div>
@@ -90,17 +98,64 @@
                     <button mat-icon-button color="primary" (click)="editAsignatura(asignatura)">
                         <mat-icon [svgIcon]="'heroicons_outline:pencil'"></mat-icon>
                     </button>
-                    <button mat-icon-button color="warn" (click)="deleteAsignatura(asignatura.id)">
+                    <button mat-icon-button color="warn" (click)="openDeleteModal(asignatura)">
                         <mat-icon [svgIcon]="'heroicons_outline:trash'"></mat-icon>
                     </button>
-                <button mat-icon-button color="primary" (click)="showAsignatura(asignatura.id)">
+                <button mat-icon-button color="primary" (click)="showAsignatura(asignatura)">
                         <mat-icon [svgIcon]="'heroicons_outline:user'"></mat-icon>
                     </button>
                 </div>
                 <div></div>
             </div>
             }
+            
+            <!-- Delete confirmation modal -->
+            @if (showDeleteModal) {
+            <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                <div class="bg-white p-6 rounded shadow-lg w-96">
+                    <h3 class="text-lg font-semibold mb-4">Confirmar eliminación</h3>
+                    <p class="mb-6">¿Estás seguro que deseas eliminar la asignatura <strong>{{ asignaturaToDelete?.nombre || asignaturaToDelete?.codigo }}</strong>?</p>
+                    <div class="flex justify-end gap-2">
+                        <button mat-button type="button" (click)="cancelDelete()">No</button>
+                        <button mat-flat-button color="warn" type="button" (click)="confirmDelete()">Sí</button>
+                    </div>
+                </div>
+            </div>
+            }
+            
+            <!-- User info modal (bigger, space for two lists, close X top-right) -->
+            @if (showUserModal) {
+            <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                <div class="bg-white p-8 rounded shadow-lg w-full max-w-3xl relative">
+                    <!-- Close (X) top-right -->
+                    <button mat-icon-button class="absolute top-3 right-3 " aria-label="Cerrar" (click)="closeUserModal()">
+                        <mat-icon class="text-gray-500 hover:text-gray-700" [svgIcon]="'heroicons_outline:x-mark'"></mat-icon>
+                    </button>
 
+                    <div class="mb-4">
+                        <!-- Name: larger and bold -->
+                        <div class="text-3xl font-bold text-black">{{ asignaturaSelected?.nombre }}</div>
+                        <!-- Code: smaller and lighter -->
+                        <div class="text-sm text-gray-500 mt-1">{{ asignaturaSelected?.codigo }}</div>
+                    </div>
+
+                    <!-- Thin black horizontal separator -->
+                    <hr class="border-t border-black my-4" />
+
+                    <!-- Placeholder grid for the two lists (left/right) -->
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                <!-- Left list placeholder (con borde derecho como separador en md+) -->
+                                                <div class="pr-6 md:pr-8 md:border-r md:border-black">
+                                                     hola
+                                                </div>
+                                                <!-- Right list placeholder -->
+                                                <div class="pl-6 md:pl-8">
+                                                    adios
+                                                </div>
+                                        </div>
+                </div>
+            </div>
+            }
             }@else {
             <div class="flex flex-1 flex-col items-center justify-center px-4 text-center sm:px-6 lg:px-8">
                 <mat-icon class="mb-4 text-6xl text-secondary" [svgIcon]="'heroicons_outline:folder-open'"></mat-icon>

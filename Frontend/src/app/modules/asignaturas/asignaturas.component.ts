@@ -21,8 +21,8 @@ import { AsignaturasService } from 'app/core/asignaturas/asignaturas.service';
   ],
   templateUrl: './asignaturas.component.html',
   styles: [
-        /* language=SCSS */
-        `
+    /* language=SCSS */
+    `
             .inventory-grid {
                 grid-template-columns: 48px auto 40px;
 
@@ -35,60 +35,179 @@ import { AsignaturasService } from 'app/core/asignaturas/asignaturas.service';
                 }
 
                 @screen lg {
+                    grid-template-columns: 20px 112px 112px 700px 96px 40px;
+                }
+                @screen lg {
                     grid-template-columns: 20px 112px 112px 1100px 96px 40px;
                 }
             }
         `,
-    ]
+  ]
 })
 export class AsignaturasComponent implements OnInit {
   showModal = false;
+  // controls the confirm-delete modal
+  showDeleteModal = false;
+  asignaturaToDelete: any = null;
+  // edit mode state
+  isEditMode: boolean = false;
+  editingId: any = null;
   asignaturaForm: FormGroup;
   asignaturas: any[] = [];
-  constructor(private fb: FormBuilder, private _asignaturesService:AsignaturasService ,) {
+  // user modal state
+  showUserModal: boolean = false;
+  asignaturaSelected: any = null;
+  constructor(private fb: FormBuilder, private _asignaturesService: AsignaturasService,) {
     this.asignaturaForm = this.fb.group({
       nombre: ['', Validators.required],
-      apellido: ['', Validators.required]
+      codigo: ['', Validators.required],
+      curso: ['', Validators.required]
     });
   }
-ngOnInit(): void {
-  this.getasignaturas();
-}
-  openModal() {
+  ngOnInit(): void {
+    this.getasignaturas();
+  }
+  openNewEditModal() {
+    // Open modal for creating a new asignatura
+    this.isEditMode = false;
+    this.editingId = null;
     this.showModal = true;
     this.asignaturaForm.reset();
   }
 
-  closeModal() {
+  closeNewEditModal() {
     this.showModal = false;
+    this.isEditMode = false;
+    this.editingId = null;
     this.asignaturaForm.reset();
   }
 
   submitForm() {
     if (this.asignaturaForm.invalid) {
       this.asignaturaForm.get('nombre')?.markAsTouched();
-      this.asignaturaForm.get('apellido')?.markAsTouched();
+      this.asignaturaForm.get('codigo')?.markAsTouched();
+      this.asignaturaForm.get('curso')?.markAsTouched();
       return;
     }
     // Aquí puedes manejar el envío del formulario
     // Por ahora solo cierra el modal
-    this.closeModal();
+    const nuevaAsignatura = this.asignaturaForm.value;
+    if (this.isEditMode && this.editingId) {
+      // Update existing asignatura
+      this._asignaturesService.update(this.editingId, nuevaAsignatura).subscribe(
+        (response) => {
+          console.log('Asignatura actualizada:', response);
+          this.getasignaturas();
+          this.closeNewEditModal();
+        },
+        (error) => {
+          console.error('Error al actualizar asignatura:', error);
+        }
+      );
+    } else {
+      // Create new asignatura
+      this._asignaturesService.addnew(nuevaAsignatura).subscribe(
+        (response) => {
+          console.log('Asignatura agregada:', response);
+          this.getasignaturas(); // Actualiza la lista después de agregar una nueva asignatura
+          this.closeNewEditModal();
+        },
+        (error) => {
+          console.error('Error al agregar asignatura:', error);
+        }
+      );
+    }
   }
   getasignaturas() {
-    this._asignaturesService.getall().subscribe((data:any) => {
+    this._asignaturesService.getall().subscribe((data: any) => {
       this.asignaturas = data;
       console.log(this.asignaturas);
     }
     );
-    
+
   }
-   /**
-     * Track by function for ngFor loops
-     *
-     * @param index
-     * @param item
-     */
-    trackByFn(index: number, item: any): any {
-        return item.id || index;
+  /**
+   * Open confirmation modal for deleting an asignatura
+   * We accept the whole object so we can show its name in the dialog
+   */
+  openDeleteModal(asignatura: any) {
+    this.asignaturaToDelete = asignatura;
+    this.showDeleteModal = true;
+  }
+
+  /**
+   * Open modal in edit mode and populate form
+   */
+  editAsignatura(asignatura: any) {
+    if (!asignatura) {
+      return;
     }
+    this.isEditMode = true;
+    this.editingId = asignatura.id;
+    this.showModal = true;
+    // Patch form with existing data
+    this.asignaturaForm.patchValue({
+      nombre: asignatura.nombre || '',
+      codigo: asignatura.codigo || '',
+      curso: asignatura.curso || ''
+    });
+  }
+
+  /**
+   * Show a small modal with asignatura info (name bold, code small and lighter)
+   */
+  showAsignatura(asignatura: any) {
+    if (!asignatura) return;
+    this.asignaturaSelected = asignatura;
+    this.showUserModal = true;
+  }
+
+  closeUserModal() {
+    this.showUserModal = false;
+    this.asignaturaSelected = null;
+  }
+
+  /**
+   * User confirmed deletion. Call service to delete and refresh list.
+   */
+  confirmDelete() {
+    if (!this.asignaturaToDelete) {
+      this.showDeleteModal = false;
+      return;
+    }
+    const id = this.asignaturaToDelete.id;
+    this._asignaturesService.delete(id).subscribe(
+      () => {
+        // refresh list
+        this.getasignaturas();
+        this.showDeleteModal = false;
+        this.asignaturaToDelete = null;
+      },
+      (error) => {
+        console.error('Error al eliminar asignatura:', error);
+        // close modal even if error (you can improve to show the error)
+        this.showDeleteModal = false;
+        this.asignaturaToDelete = null;
+      }
+    );
+  }
+
+  /**
+   * Cancel deletion flow
+   */
+  cancelDelete() {
+    this.showDeleteModal = false;
+    this.asignaturaToDelete = null;
+  }
+
+  
+  /**
+    * Track by function for ngFor loops
+    *
+    * @param index
+    * @param item
+    */
+  trackByFn(index: number, item: any): any {
+    return item.id || index;
+  }
 }

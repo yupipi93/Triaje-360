@@ -16,6 +16,19 @@ const getAllAsignaturas = async (req, res) => {
         }
     });
 };
+const getOneAsignaturas = async (req, res) => {
+    jwt.comprobartoken(req, res, async function () {
+        if (req.role !== 'admin' && req.role !== 'profesor') {  
+            return res.status(403).json({ message: 'Acceso denegado' });
+        }
+        try {
+            const asignatura = await asignaturasService.getOneAsignaturas(req.params.idAsignatura);
+            res.status(200).json(asignatura);
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }   
+    });
+};
 const postAsignatura = async (req, res) => {
     jwt.comprobartoken(req, res, async function () {
         if (req.role !== 'admin') {
@@ -30,14 +43,39 @@ const postAsignatura = async (req, res) => {
     });
 };
 
-
+const deleteAsignatura = async (req, res) => {
+    jwt.comprobartoken(req, res, async function () {
+        if (req.role !== 'admin') {
+            return res.status(403).json({ message: 'Acceso denegado' });
+        }
+        try {
+            await asignaturasService.deleteAsignatura(req.params.idAsignatura);
+            res.status(200).json({ message: 'Asignatura eliminada correctamente' });
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
+    });
+};
+const updateAsignatura = async (req, res) => {
+    jwt.comprobartoken(req, res, async function () {
+        if (req.role !== 'admin') {
+            return res.status(403).json({ message: 'Acceso denegado' });
+        }
+        try {
+            const asignatura = await asignaturasService.updateAsignatura(req.params.idAsignatura, req.body);
+            res.status(200).json(asignatura);
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }   
+    });
+};
 const postUsertoAsignature = async (req, res) => {
     jwt.comprobartoken(req, res, async function () {
         if (req.role !== 'admin') {
             return res.status(403).json({ message: 'Acceso denegado' });
         }
         try {
-            const asignatura = await asignaturasService.postAlutoAsignature(req.params.idAsignatura, req.params.idUser);
+            const asignatura = await asignaturasService.postUsertoAsignature(req.params.idAsignatura, req.params.idUser);
             res.status(201).json(asignatura);
         } catch (error) {
             res.status(500).json({ message: error.message });
@@ -45,6 +83,19 @@ const postUsertoAsignature = async (req, res) => {
     });
 };
 
+const deleteUserfromAsignature = async (req, res) => {
+    jwt.comprobartoken(req, res, async function () {
+        if (req.role !== 'admin') {
+            return res.status(403).json({ message: 'Acceso denegado' });
+        }
+        try {
+            const asignatura = await asignaturasService.deleteUserfromAsignature(req.params.idAsignatura, req.params.idUser);
+            res.status(200).json(asignatura);
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }  
+    });
+};
 
 const getAsignaturesFromProf = async (req, res) => {
     jwt.comprobartoken(req, res, async function () {
@@ -62,7 +113,11 @@ const getAsignaturesFromProf = async (req, res) => {
 };
 module.exports = {
     getAllAsignaturas,
+    getOneAsignaturas,
     postAsignatura,
+    updateAsignatura,
+    deleteAsignatura,
    postUsertoAsignature,
+    deleteUserfromAsignature,
     getAsignaturesFromProf
 };
