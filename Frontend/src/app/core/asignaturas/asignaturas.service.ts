@@ -47,6 +47,12 @@ export class AsignaturasService {
         // Endpoint: /api/asignatures/alu/:id
         return this._httpClient.get(`${environment.apiUrl}${environment.asig.all}/users/${idAsignatura}`, { headers });
     }
+    getNoUsuariosAsignatura(idAsignatura: any): Observable<any> {
+        const token = this._authService.accessToken;
+        const headers = new HttpHeaders().set('Authorization', `${token}`);
+        // Endpoint: /api/asignatures/noalu/:id
+        return this._httpClient.get(`${environment.apiUrl}${environment.asig.all}/nousers/${idAsignatura}`, { headers });
+    }
 
     /**
      * Get all users (admin endpoint)
@@ -56,5 +62,25 @@ export class AsignaturasService {
         const headers = new HttpHeaders().set('Authorization', `${token}`);
         return this._httpClient.get(`${environment.apiUrl}/users`, { headers });
     }
+
+        /**
+         * Remove user from asignatura
+         */
+        removeUserFromAsignature(idAsignatura: any, idUser: any): Observable<any> {
+            const token = this._authService.accessToken;
+            const headers = new HttpHeaders().set('Authorization', `${token}`);
+            // DELETE /asignatures/:idAsignatura/:idUser
+            return this._httpClient.delete(`${environment.apiUrl}${environment.asig.all}/${idAsignatura}/${idUser}`, { headers });
+        }
+
+        /**
+         * Add user to asignatura
+         */
+        addUserToAsignature(idAsignatura: any, idUser: any): Observable<any> {
+            const token = this._authService.accessToken;
+            const headers = new HttpHeaders().set('Authorization', `${token}`);
+            // POST /asignatures/:idAsignatura/:idUser
+            return this._httpClient.post(`${environment.apiUrl}${environment.asig.all}/${idAsignatura}/${idUser}`, {}, { headers });
+        }
 
 }

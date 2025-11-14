@@ -64,35 +64,70 @@ const updateAsignatura = (idAsignatura, body) => {
       });
   });
 };
-const postUsertoAsignature = (idAsignatura, idUser) => {
-  return new Promise((resolve, reject) => {
-    db.query('SELECT * FROM asignatura WHERE id = ?', [idAsignatura], (err, results) => {
+// const postUsertoAsignature = (idAsignatura, idUser) => {
+//   return new Promise((resolve, reject) => {
+//     db.query('SELECT * FROM asignatura WHERE id = ?', [idAsignatura], (err, results) => {
       
-      if (err) return reject(err);
-      if (results.length === 0) {
+//       if (err) return reject(err);
+//       if (results.length === 0) {
         
-        return reject({ status: 404, message: 'Asignatura no encontrada' });
-      }
-      db.query('SELECT * FROM users WHERE id = ?', [idUser], (err, results) => {
+//         return reject({ status: 404, message: 'Asignatura no encontrada' });
+//       }
+//       db.query('SELECT * FROM users WHERE id = ?', [idUser], (err, results) => {
         
-        if (err) return reject(err);
-        if (results.length != 1) {
-          return reject({ status: 404, message: 'Usuario no encontrado' });
-        }
+//         if (err) return reject(err);
+//         if (results.length != 1) {
+//           return reject({ status: 404, message: 'Usuario no encontrado' });
+//         }
         
     
-            console.log('etoy aqui');
-            db.query('INSERT INTO user_asignatura (usuario, asignatura) VALUES (?, ?)', [idUser, idAsignatura], (err) => {
-              if (err) return reject(err);
-              resolve({ message: `${results[0].role} asignado a la asignatura` });
-            });
+//             console.log('etoy aqui');
+//             db.query('INSERT INTO user_asignatura (usuario, asignatura) VALUES (?, ?)', [idUser, idAsignatura], (err) => {
+//               if (err) return reject(err);
+//               resolve({ message: `${results[0].role} asignado a la asignatura` });
+//             });
            
+//       });
+//     });
+//   })
+// };
+
+const postUsertoAsignature = (idAsignatura, idUser) => {
+  return new Promise((resolve, reject) => {
+    db.query('SELECT * FROM asignatura WHERE id = ?', [idAsignatura], (err, asignaturaResults) => {
+      if (err) return reject(err);
+      if (asignaturaResults.length === 0) {
+        return reject({ status: 404, message: 'Asignatura no encontrada' });
+      }
+
+      db.query('SELECT * FROM users WHERE id = ?', [idUser], (err, userResults) => {
+        if (err) return reject(err);
+        if (userResults.length !== 1) {
+          return reject({ status: 404, message: 'Usuario no encontrado' });
+        }
+
+        // Comprobar si la pareja usuario-asignatura ya existe
+        db.query('SELECT * FROM user_asignatura WHERE usuario = ? AND asignatura = ?', [idUser, idAsignatura], (err, relationResults) => {
+          if (err) return reject(err);
+          if (relationResults.length > 0) {
+            return reject({ status: 409, message: 'Usuario ya matriculado en la asignatura' });
+          }
+
+          // Insertar la relación si no existe
+          db.query('INSERT INTO user_asignatura (usuario, asignatura) VALUES (?, ?)', [idUser, idAsignatura], (err) => {
+            if (err) return reject(err);
+            
+            resolve({ message: `${userResults[0].role} asignado a la asignatura` });
+          });
+        });
+
       });
     });
-  })
+  });
 };
 
 const deleteUserfromAsignature = (idAsignatura, idUser) => {
+  var user='';
   return new Promise((resolve, reject) => {
     db.query('SELECT * FROM asignatura WHERE id = ?', [idAsignatura], (err, results) => {
       
@@ -101,19 +136,21 @@ const deleteUserfromAsignature = (idAsignatura, idUser) => {
         
         return reject({ status: 404, message: 'Asignatura no encontrada' });
       }
+      
       db.query('SELECT * FROM users WHERE id = ?', [idUser], (err, userResults) => {
         if (err) return reject(err);
         if (userResults.length != 1) {
           return reject({ status: 404, message: 'Usuario no encontrado' });
         }
-
+        
         // Delete the user-asignatura relation using a WHERE clause (correct DELETE syntax)
         db.query('DELETE FROM user_asignatura WHERE usuario = ? AND asignatura = ?', [idUser, idAsignatura], (err, deleteResult) => {
           if (err) return reject(err);
           if (deleteResult.affectedRows === 0) {
             return reject({ status: 404, message: 'Usuario no asignado a la asignatura' });
           }
-          resolve({ message: `${results[0].role} eliminado de la asignatura` });
+          console.log(userResults);
+          resolve({ message: `${userResults[0].role} eliminado de la asignatura` });
         });
 
       });

@@ -86,7 +86,7 @@ const getAllUsers = () => {
 const getUsersfromAsignature = (idAsignatura, role) => {
   return new Promise((resolve, reject) => {
     // Construir la consulta de forma dinámica: si se proporciona `role`, filtrar por él.
-    let sql = 'SELECT u.id, u.email, u.nickname FROM users u JOIN user_asignatura ua ON u.id = ua.usuario WHERE asignatura = ?';
+    let sql = 'SELECT u.id, u.email, u.nickname,u.role FROM users u JOIN user_asignatura ua ON u.id = ua.usuario WHERE asignatura = ?';
     const params = [idAsignatura];
     if (role) {
       sql += ' AND u.role = ?';
@@ -103,6 +103,36 @@ const getUsersfromAsignature = (idAsignatura, role) => {
   });
 }
 
+const getNoUsersfromAsignature = (idAsignatura, role) => {
+  return new Promise((resolve, reject) => {
+    // Excluir siempre usuarios con rol 'admin'.
+    // Si se solicita explícitamente role === 'admin' devolvemos lista vacía.
+    if (role === 'admin') {
+      return resolve({
+        message: 'usuarios obtenidos',
+        user: []
+      });
+    }
+
+    // Filtramos por usuarios que NO estén asignados y que además no sean admin.
+    // Usamos parámetros preparados: primero 'admin', luego idAsignatura.
+    let sql = 'SELECT u.id, u.email, u.nickname, u.role FROM users u WHERE u.role <> ? AND u.id NOT IN (SELECT usuario FROM user_asignatura WHERE asignatura = ?)';
+    const params = ['admin', idAsignatura];
+    if (role) {
+      // Si se pasa un role (p. ej. 'alu' o 'prof'), aplicarlo además de excluir admins.
+      sql += ' AND u.role = ?';
+      params.push(role);
+    }
+
+    db.query(sql, params, (err, results) => {
+      if (err) return reject(err);
+      resolve({
+        message: 'usuarios obtenidos',
+        user: results
+      });
+    });
+  });
+} 
 const postUser = (body) => {
   return new Promise((resolve, reject) => {
     const { email, nickname, password, role } = body;
@@ -152,5 +182,5 @@ const getAllProfs = () => {
   });
 }
 module.exports = {
-  iniUser0, login, getAllUsers, getUsersfromAsignature, postUser, getAllAlus,getAllProfs
+  iniUser0, login, getAllUsers, getUsersfromAsignature,getNoUsersfromAsignature, postUser, getAllAlus,getAllProfs
 };

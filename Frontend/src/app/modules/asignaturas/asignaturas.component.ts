@@ -7,6 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
 import { AsignaturasService } from 'app/core/asignaturas/asignaturas.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-asignaturas',
@@ -17,7 +18,8 @@ import { AsignaturasService } from 'app/core/asignaturas/asignaturas.service';
     MatIconModule,
     MatCheckboxModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+     CommonModule
   ],
   templateUrl: './asignaturas.component.html',
   styles: [
@@ -37,8 +39,8 @@ import { AsignaturasService } from 'app/core/asignaturas/asignaturas.service';
                 @screen lg {
                     grid-template-columns: 20px 112px 112px 700px 96px 40px;
                 }
-                @screen lg {
-                    grid-template-columns: 20px 112px 112px 1100px 96px 40px;
+                @screen xl {
+                    grid-template-columns: 20px 112px 112px 500px 96px 40px;
                 }
             }
         `,
@@ -54,9 +56,39 @@ export class AsignaturasComponent implements OnInit {
   editingId: any = null;
   asignaturaForm: FormGroup;
   asignaturas: any[] = [];
+  matriculados: any[] = [];
+  noMatriculados: any[] = [];
   // user modal state
   showUserModal: boolean = false;
   asignaturaSelected: any = null;
+
+    // Remove user from asignatura
+    removeUserFromAsignature(user: any) {
+      if (!this.asignaturaSelected || !user) return;
+      this._asignaturesService.removeUserFromAsignature(this.asignaturaSelected.id, user.id).subscribe(
+        () => {
+          this.getmatriculados(this.asignaturaSelected.id);
+          this.getnomatriculados(this.asignaturaSelected.id);
+        },
+        (error) => {
+          console.error('Error al eliminar usuario de la asignatura:', error);
+        }
+      );
+    }
+
+    // Add user to asignatura
+    addUserToAsignature(user: any) {
+      if (!this.asignaturaSelected || !user) return;
+      this._asignaturesService.addUserToAsignature(this.asignaturaSelected.id, user.id).subscribe(
+        () => {
+          this.getmatriculados(this.asignaturaSelected.id);
+          this.getnomatriculados(this.asignaturaSelected.id);
+        },
+        (error) => {
+          console.error('Error al agregar usuario a la asignatura:', error);
+        }
+      );
+    }
   constructor(private fb: FormBuilder, private _asignaturesService: AsignaturasService,) {
     this.asignaturaForm = this.fb.group({
       nombre: ['', Validators.required],
@@ -160,6 +192,8 @@ export class AsignaturasComponent implements OnInit {
     if (!asignatura) return;
     this.asignaturaSelected = asignatura;
     this.showUserModal = true;
+    this.getmatriculados(asignatura.id);
+    this.getnomatriculados(asignatura.id);
   }
 
   closeUserModal() {
@@ -190,6 +224,21 @@ export class AsignaturasComponent implements OnInit {
         this.asignaturaToDelete = null;
       }
     );
+  }
+getmatriculados(idAsignatura: any) {
+    this._asignaturesService.getUsuariosAsignatura(idAsignatura).subscribe((data: any) => {
+      this.matriculados = Object.values(data);
+
+      console.log(this.matriculados);
+      return this.matriculados;
+    });
+  }
+
+  getnomatriculados(idAsignatura: any) {
+    this._asignaturesService.getNoUsuariosAsignatura(idAsignatura).subscribe((data: any) => {
+      this.noMatriculados = Object.values(data);
+      console.log(this.noMatriculados);
+    });
   }
 
   /**
