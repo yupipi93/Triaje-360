@@ -1,5 +1,5 @@
 const db = require('../db');
-const { get } = require('../routes/AsignaturasRoutes');
+
 
 const config = require('../config').config;
 
