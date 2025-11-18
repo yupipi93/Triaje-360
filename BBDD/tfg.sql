@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 29-10-2025 a las 13:14:41
+-- Tiempo de generación: 18-11-2025 a las 08:47:14
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -83,8 +83,7 @@ CREATE TABLE `user_asignatura` (
 
 INSERT INTO `user_asignatura` (`usuario`, `asignatura`) VALUES
 ('2kd9b6jig8531sh2lkea', '2kd9fckc7t9tla26e1cj'),
-('2kdgltkglof16td6ctle', '2kd9fckc7t9tla26e1cj'),
-('2kgis284nrj1cn44t1oq', '2kd9fckc7t9tla26e1cj');
+('2kdgltkglof16td6ctle', '2kd9fckc7t9tla26e1cj');
 
 --
 -- Índices para tablas volcadas
