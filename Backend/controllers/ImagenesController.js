@@ -31,7 +31,12 @@ const getOneImagen = async (req, res) => {
     });
 };  
 const postImagen = async (req, res) => {
-    console.log(req.body);
+    
+     if (!req.files || !req.files.image) {
+    console.log("No se ha subido ningún archivo");
+  }
+
+    console.log(req.files.foo,"estoy en el controlador de imagenes");
     jwt.comprobartoken(req, res, async function () {
         console.log("hola");
         if (req.role !== 'admin' ) {

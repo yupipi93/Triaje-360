@@ -15,10 +15,15 @@ export class ImagenesService {
      * Sube una imagen al backend. Espera un FormData con los campos necesarios.
      * Añade el token de autorización en la cabecera 'authorization'.
      */
-    uploadImagen(formData: any): Observable<HttpEvent<any>> {
+    uploadImagen(formData: any,file:any): Observable<HttpEvent<any>> {
         const token = this.auth.accessToken || '';
         const headers = new HttpHeaders().set('authorization', token);
-        
+         var fd :FormData= new FormData();
+         fd.append('nombre',formData.nombre);
+         fd.append('descripcion',formData.descripcion);
+         fd.append('tipo',formData.tipo);
+         fd.append('archivo',file);
+         console.log(file);
         return this.http.post<any>(this.baseUrl, formData, {
             headers,
            

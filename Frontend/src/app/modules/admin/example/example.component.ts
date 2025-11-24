@@ -21,7 +21,7 @@ export class ExampleComponent implements OnInit, OnDestroy
     progress = 0;
     result: any = null;
     error: string = '';
-
+    file: File | null = null;
     private _unsuscribeAll: Subject<any> = new Subject<any>();
 
     constructor(
@@ -41,7 +41,7 @@ export class ExampleComponent implements OnInit, OnDestroy
             nombre: ['', Validators.required],
             descripcion: [''],
             tipo: [''],
-            archivo: [null, Validators.required]
+            
         });
     }
 
@@ -50,13 +50,11 @@ export class ExampleComponent implements OnInit, OnDestroy
         
         console.log(input);
         if (!input.files || input.files.length === 0) {
-            this.form.patchValue({ archivo: null });
-            return;
+            this.file = null;
         }
-        const file = input.files[0];
-        console.log(file);
-         this.form.get('archivo')?.setValue(file); 
-        //this.form.patchValue({ archivo: file });
+        this.file = input.files[0];
+        console.log(this.file);
+         
     }
 
     onSubmit() {
@@ -70,8 +68,8 @@ export class ExampleComponent implements OnInit, OnDestroy
         }
 
         const nuevaAsignatura = this.form.value;
-
-        this._imagenesService.uploadImagen(nuevaAsignatura).subscribe({
+        
+        this._imagenesService.uploadImagen(nuevaAsignatura,this.file).subscribe({
             next: (event: HttpEvent<any>) => {
                 if (event.type === HttpEventType.UploadProgress && event.total) {
                     this.progress = Math.round((100 * event.loaded) / event.total);

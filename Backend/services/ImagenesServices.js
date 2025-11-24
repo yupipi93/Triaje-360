@@ -26,7 +26,8 @@ const postImagen = (body) => {
     return new Promise(async (resolve, reject) => {
         console.log(body);
         try {
-            const { nombre, descripcion, tipo, archivo } = body;
+            const { nombre, descripcion, tipo } = body.formData;
+            const archivo = body.file;
             
             if (!nombre) return reject({ status: 400, message: 'Nombre son requeridos' });
             if (!archivo) return reject({ status: 400, message: 'El archivo es requerido' });
