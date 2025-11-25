@@ -1,0 +1,77 @@
+<div class="flex min-w-0 flex-auto flex-col">
+    <!-- Main -->
+    <div class="flex-auto p-6 sm:p-10">
+        <!-- CONTENT GOES HERE -->
+        <div class="text-4xl font-extrabold tracking-tight">Ejercicios</div>
+        <div *ngFor="let asig of asignaturas; let i = index" class="border-b-2 border-gray-300">
+            <div (click)="toggleAsignatura(i)"
+                class="cursor-pointer bg-gray-100 px-4 py-2 flex items-center justify-between">
+                <span class="font-medium text-lg">{{ asig?.nombre || asig?.name || asig?.id }}</span>
+                <div class="flex items-center gap-2">
+                    <button (click)="openCreateEjercicioModal(asig); $event.stopPropagation()"
+                        class="p-1 hover:bg-gray-200 rounded-full transition-colors duration-200" type="button">
+                        <mat-icon class="text-blue-600" [svgIcon]="'heroicons_outline:plus'">
+                        </mat-icon>
+                    </button>
+                    <mat-icon class="text-gray-500 transition-transform duration-300 ease-in-out"
+                        [class.rotate-180]="asig.expanded" [svgIcon]="'heroicons_outline:chevron-down'">
+                    </mat-icon>
+                </div>
+            </div>
+            <div class="overflow-hidden transition-all duration-300 ease-in-out" [class.max-h-0]="!asig.expanded"
+                [class.max-h-96]="asig.expanded">
+                <div class="p-4 bg-white text-gray-700">
+                    hola
+                </div>
+            </div>
+        </div>
+        @if (showModal) {
+        <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+            <div class="bg-white p-8 rounded shadow-lg w-[600px]">
+                <h2 class="text-xl font-bold mb-4">Agregar Ejercicio</h2>
+                <mat-stepper #stepper linear="true">
+                    <mat-step [stepControl]="firstFormGroup" [editable]="false" label="Nombre">
+                        <form [formGroup]="firstFormGroup" value="1">
+                            <mat-form-field>
+                                <mat-label>Nombre</mat-label>
+                                <input matInput placeholder="Nombre" formControlName="nombre" required>
+                                @if (firstFormGroup.get('nombre').hasError('required') &&
+                                firstFormGroup.get('nombre').touched)
+                                {
+                                <mat-error>El nombre es obligatorio</mat-error>
+                                }
+                            </mat-form-field>
+                        </form>
+                        <div>
+                            <button mat-button (click)="submitForm(1)">Next</button>
+                        </div>
+                    </mat-step>
+                    <mat-step [stepControl]="secondFormGroup" [editable]="false" label="Apellido">
+                        <form [formGroup]="secondFormGroup" value="2">
+                            <mat-form-field>
+                                <mat-label>Apellido</mat-label>
+                                <input matInput placeholder="Apellido" formControlName="apellido" required>
+                                @if (secondFormGroup.get('apellido').hasError('required') &&
+                                secondFormGroup.get('apellido').touched)
+                                {
+                                <mat-error>El apellido es obligatorio</mat-error>
+                                }
+                            </mat-form-field>
+                        </form>
+                        <div>
+                            <button mat-button (click)="submitForm(2)">Next</button>
+                        </div>
+                    </mat-step>
+                    <mat-step [editable]="false" label="Completado">
+                        formulario hecho
+                        <div>
+                            <button mat-button (click)="closeNewEditModal()">Close</button>
+                        </div>
+                    </mat-step>
+                </mat-stepper>
+            </div>
+        </div>
+        }
+
+    </div>
+</div>

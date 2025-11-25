@@ -5,8 +5,8 @@ import { AuthService } from '../auth/auth.service';
 import { Observable } from 'rxjs';
 @Injectable({ providedIn: 'root' })
 export class AsignaturasService {
-	 private _httpClient = inject(HttpClient);
-     private _authService = inject(AuthService);
+    private _httpClient = inject(HttpClient);
+    private _authService = inject(AuthService);
 
     getall(): Observable<any> {
         const token = this._authService.accessToken;
@@ -37,6 +37,11 @@ export class AsignaturasService {
         // PUT to update asignatura by id
         return this._httpClient.put(`${environment.apiUrl}${environment.asig.addnew}/${id}`, asignatura, { headers });
     }
+    getallfromprofesor(id: any): Observable<any> {
+        const token = this._authService.accessToken;
+        const headers = new HttpHeaders().set('Authorization', `${token}`);
+        return this._httpClient.get(`${environment.apiUrl}${environment.asig.all}/user/${id}`, { headers });
+    }
 
     /**
      * Get alumnos (students) assigned to an asignatura
@@ -63,24 +68,24 @@ export class AsignaturasService {
         return this._httpClient.get(`${environment.apiUrl}/users`, { headers });
     }
 
-        /**
-         * Remove user from asignatura
-         */
-        removeUserFromAsignature(idAsignatura: any, idUser: any): Observable<any> {
-            const token = this._authService.accessToken;
-            const headers = new HttpHeaders().set('Authorization', `${token}`);
-            // DELETE /asignatures/:idAsignatura/:idUser
-            return this._httpClient.delete(`${environment.apiUrl}${environment.asig.all}/${idAsignatura}/${idUser}`, { headers });
-        }
+    /**
+     * Remove user from asignatura
+     */
+    removeUserFromAsignature(idAsignatura: any, idUser: any): Observable<any> {
+        const token = this._authService.accessToken;
+        const headers = new HttpHeaders().set('Authorization', `${token}`);
+        // DELETE /asignatures/:idAsignatura/:idUser
+        return this._httpClient.delete(`${environment.apiUrl}${environment.asig.all}/${idAsignatura}/${idUser}`, { headers });
+    }
 
-        /**
-         * Add user to asignatura
-         */
-        addUserToAsignature(idAsignatura: any, idUser: any): Observable<any> {
-            const token = this._authService.accessToken;
-            const headers = new HttpHeaders().set('Authorization', `${token}`);
-            // POST /asignatures/:idAsignatura/:idUser
-            return this._httpClient.post(`${environment.apiUrl}${environment.asig.all}/${idAsignatura}/${idUser}`, {}, { headers });
-        }
+    /**
+     * Add user to asignatura
+     */
+    addUserToAsignature(idAsignatura: any, idUser: any): Observable<any> {
+        const token = this._authService.accessToken;
+        const headers = new HttpHeaders().set('Authorization', `${token}`);
+        // POST /asignatures/:idAsignatura/:idUser
+        return this._httpClient.post(`${environment.apiUrl}${environment.asig.all}/${idAsignatura}/${idUser}`, {}, { headers });
+    }
 
 }

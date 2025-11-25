@@ -10,7 +10,7 @@ router.get('/:idAsignatura', asignaturasController.getOneAsignaturas);  // Ruta 
 router.put('/:idAsignatura', asignaturasController.updateAsignatura);  // Ruta para actualizar una asignatura por ID
 router.get('/users/:idAsignatura', userController.getUsersfromAsignature);  // Ruta para obtener usuarios de una asignatura
 router.get('/nousers/:idAsignatura', userController.getNoUsersfromAsignature);  // Ruta para obtener usuarios no asignados a una asignatura
-router.get('/:idAsignatura/:idprof', asignaturasController.getAsignaturesFromProf);  // Ruta para obtener las asigaturas de un profesor
+router.get('/user/:idprof', asignaturasController.getAsignaturesFromProf);  // Ruta para obtener las asigaturas de un profesor
 router.post('/:idAsignatura/:idUser', asignaturasController.postUsertoAsignature);  // Ruta para asignar un usuario a una asignatura
 router.delete('/:idAsignatura/:idUser', asignaturasController.deleteUserfromAsignature);  // Ruta para eliminar un usuario de una asignatura
 

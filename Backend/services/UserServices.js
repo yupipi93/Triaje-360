@@ -2,40 +2,42 @@ const db = require('../db');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const config = require('../config').config;
-const admin  = require('../config').admin;
+const admin = require('../config').admin;
 
 const login = (body) => {
-return new Promise((resolve, reject) => {
-  const { email, password } = body;
-  if (!email || !password) {
-    return reject({ status: 400, message: 'Email y contraseña son requeridos' });
-  }
-  db.query('SELECT * FROM users WHERE email = ?', [email], (err, results) => {
-    if (err) return reject(err);
-    
-    if (results.length == 0) {
-      return reject({ status: 404, message: 'Usuario no encontrado' });
+  return new Promise((resolve, reject) => {
+    const { email, password } = body;
+    if (!email || !password) {
+      return reject({ status: 400, message: 'Email y contraseña son requeridos' });
     }
-    const user = results[0];
-    bcrypt.compare(password, user.password, (err, isMatch) => {
+    db.query('SELECT * FROM users WHERE email = ?', [email], (err, results) => {
       if (err) return reject(err);
-      if (!isMatch) {
-        return reject({ status: 401, message: 'Contraseña incorrecta' });
+
+      if (results.length == 0) {
+        return reject({ status: 404, message: 'Usuario no encontrado' });
       }
-      
-      const token = jwt.sign({ id: user.id,email:user.email, nickname:user.nickname,role:user.role }, config.JWT_SECRET, { expiresIn: '1h' });
-      resolve({ 
-        message: 'Inicio de sesión exitoso',
-        user: {
-          email: user.email,
-          nickname: user.nickname,  
-          role: user.role,
-          token,
-        }, 
-        token });
+      const user = results[0];
+      bcrypt.compare(password, user.password, (err, isMatch) => {
+        if (err) return reject(err);
+        if (!isMatch) {
+          return reject({ status: 401, message: 'Contraseña incorrecta' });
+        }
+
+        const token = jwt.sign({ id: user.id, email: user.email, nickname: user.nickname, role: user.role }, config.JWT_SECRET, { expiresIn: '1h' });
+        resolve({
+          message: 'Inicio de sesión exitoso',
+          user: {
+            id: user.id,
+            email: user.email,
+            nickname: user.nickname,
+            role: user.role,
+            token,
+          },
+          token
+        });
+      });
     });
-  });
-})
+  })
 }
 
 const iniUser0 = () => {
@@ -74,10 +76,10 @@ const getAllUsers = () => {
   return new Promise((resolve, reject) => {
     db.query('SELECT id, email, nickname, role FROM users', (err, results) => {
       if (err) return reject(err);
-      resolve({ 
+      resolve({
         message: 'usuarios obtenidos',
-        user:results
-       });
+        user: results
+      });
     }
     );
   });
@@ -132,7 +134,7 @@ const getNoUsersfromAsignature = (idAsignatura, role) => {
       });
     });
   });
-} 
+}
 const postUser = (body) => {
   return new Promise((resolve, reject) => {
     const { email, nickname, password, role } = body;
@@ -147,7 +149,8 @@ const postUser = (body) => {
         [id, email, nickname, hash, role],
         (err) => {
           if (err) return reject(err);
-          resolve({ message: 'Usuario creado',
+          resolve({
+            message: 'Usuario creado',
             user: { id, email, nickname, role }
           });
         }
@@ -182,5 +185,5 @@ const getAllProfs = () => {
   });
 }
 module.exports = {
-  iniUser0, login, getAllUsers, getUsersfromAsignature,getNoUsersfromAsignature, postUser, getAllAlus,getAllProfs
+  iniUser0, login, getAllUsers, getUsersfromAsignature, getNoUsersfromAsignature, postUser, getAllAlus, getAllProfs
 };

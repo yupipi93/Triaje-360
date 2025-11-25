@@ -18,7 +18,7 @@ const getAllAsignaturas = async (req, res) => {
 };
 const getOneAsignaturas = async (req, res) => {
     jwt.comprobartoken(req, res, async function () {
-        if (req.role !== 'admin' && req.role !== 'profesor') {  
+        if (req.role !== 'admin' && req.role !== 'profesor') {
             return res.status(403).json({ message: 'Acceso denegado' });
         }
         try {
@@ -26,7 +26,7 @@ const getOneAsignaturas = async (req, res) => {
             res.status(200).json(asignatura);
         } catch (error) {
             res.status(500).json({ message: error.message });
-        }   
+        }
     });
 };
 const postAsignatura = async (req, res) => {
@@ -66,7 +66,7 @@ const updateAsignatura = async (req, res) => {
             res.status(200).json(asignatura);
         } catch (error) {
             res.status(500).json({ message: error.message });
-        }   
+        }
     });
 };
 const postUsertoAsignature = async (req, res) => {
@@ -93,7 +93,7 @@ const deleteUserfromAsignature = async (req, res) => {
             res.status(200).json(asignatura);
         } catch (error) {
             res.status(500).json({ message: error.message });
-        }  
+        }
     });
 };
 
@@ -103,7 +103,7 @@ const getAsignaturesFromProf = async (req, res) => {
             return res.status(403).json({ message: 'Acceso denegado' });
         }
         try {
-            const asignaturas = await asignaturasService.getAsignaturesFromProf(req.params.idAsignatura);
+            const asignaturas = await asignaturasService.getAsignaturesFromProf(req.params.idprof);
             console.log(asignaturas);
             res.status(200).json(asignaturas);
         } catch (error) {
@@ -117,7 +117,7 @@ module.exports = {
     postAsignatura,
     updateAsignatura,
     deleteAsignatura,
-   postUsertoAsignature,
+    postUsertoAsignature,
     deleteUserfromAsignature,
     getAsignaturesFromProf
 };

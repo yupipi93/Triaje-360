@@ -46,7 +46,7 @@ const deleteAsignatura = (idAsignatura) => {
       if (results.affectedRows === 0) {
         return reject({ status: 404, message: 'Asignatura no encontrada' });
       }
-      resolve( {message: 'Asignatura eliminada correctamente' });
+      resolve({ message: 'Asignatura eliminada correctamente' });
     });
   });
 };
@@ -67,26 +67,26 @@ const updateAsignatura = (idAsignatura, body) => {
 // const postUsertoAsignature = (idAsignatura, idUser) => {
 //   return new Promise((resolve, reject) => {
 //     db.query('SELECT * FROM asignatura WHERE id = ?', [idAsignatura], (err, results) => {
-      
+
 //       if (err) return reject(err);
 //       if (results.length === 0) {
-        
+
 //         return reject({ status: 404, message: 'Asignatura no encontrada' });
 //       }
 //       db.query('SELECT * FROM users WHERE id = ?', [idUser], (err, results) => {
-        
+
 //         if (err) return reject(err);
 //         if (results.length != 1) {
 //           return reject({ status: 404, message: 'Usuario no encontrado' });
 //         }
-        
-    
+
+
 //             console.log('etoy aqui');
 //             db.query('INSERT INTO user_asignatura (usuario, asignatura) VALUES (?, ?)', [idUser, idAsignatura], (err) => {
 //               if (err) return reject(err);
 //               resolve({ message: `${results[0].role} asignado a la asignatura` });
 //             });
-           
+
 //       });
 //     });
 //   })
@@ -116,7 +116,7 @@ const postUsertoAsignature = (idAsignatura, idUser) => {
           // Insertar la relación si no existe
           db.query('INSERT INTO user_asignatura (usuario, asignatura) VALUES (?, ?)', [idUser, idAsignatura], (err) => {
             if (err) return reject(err);
-            
+
             resolve({ message: `${userResults[0].role} asignado a la asignatura` });
           });
         });
@@ -127,22 +127,22 @@ const postUsertoAsignature = (idAsignatura, idUser) => {
 };
 
 const deleteUserfromAsignature = (idAsignatura, idUser) => {
-  var user='';
+  var user = '';
   return new Promise((resolve, reject) => {
     db.query('SELECT * FROM asignatura WHERE id = ?', [idAsignatura], (err, results) => {
-      
+
       if (err) return reject(err);
       if (results.length === 0) {
-        
+
         return reject({ status: 404, message: 'Asignatura no encontrada' });
       }
-      
+
       db.query('SELECT * FROM users WHERE id = ?', [idUser], (err, userResults) => {
         if (err) return reject(err);
         if (userResults.length != 1) {
           return reject({ status: 404, message: 'Usuario no encontrado' });
         }
-        
+
         // Delete the user-asignatura relation using a WHERE clause (correct DELETE syntax)
         db.query('DELETE FROM user_asignatura WHERE usuario = ? AND asignatura = ?', [idUser, idAsignatura], (err, deleteResult) => {
           if (err) return reject(err);
@@ -206,10 +206,10 @@ const postProftoAsignature = (idAsignatura, idUser) => {
   });
 };*/
 
-const getAsignaturesFromProf = (idAsignatura) => {
+const getAsignaturesFromProf = (idUser) => {
   return new Promise((resolve, reject) => {
 
-    db.query('SELECT * FROM asignatura a JOIN user_asignatura pa ON a.id = pa.asignatura WHERE pa.usuario = ?', [idAsignatura], (err, results) => {
+    db.query('SELECT * FROM asignatura a JOIN user_asignatura pa ON a.id = pa.asignatura WHERE pa.usuario = ?', [idUser], (err, results) => {
       console.log(results)
       if (err) return reject(err);
       resolve(results);
@@ -220,9 +220,9 @@ const getAsignaturesFromProf = (idAsignatura) => {
 module.exports = {
   getAllAsignaturas,
   postAsignatura,
-deleteAsignatura,
-updateAsignatura,
-getOneAsignaturas,
+  deleteAsignatura,
+  updateAsignatura,
+  getOneAsignaturas,
   getAsignaturesFromProf,
   postUsertoAsignature,
   deleteUserfromAsignature
