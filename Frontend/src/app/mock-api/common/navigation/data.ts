@@ -26,11 +26,11 @@ export const profNavigation: FuseNavigationItem[] = [
         link : '/example'
     },
     {
-        id:'alumnos',
-        title: 'Alumnos',
+        id:'ejercicios',
+        title: 'Ejercicios',
         type: 'basic',
         icon: 'heroicons_outline:users',
-        link: '/alumnos'
+        link: '/ejercicios'
     }
     
 ];

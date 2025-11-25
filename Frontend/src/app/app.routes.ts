@@ -89,6 +89,7 @@ export const appRoutes: Route[] = [
         },
         children: [
             {path: 'asignaturas', loadChildren: () => import('app/modules/asignaturas/asignaturas.routes')},
+            {path: 'ejercicios', loadChildren: () => import('app/modules/ejercicios/ejercicios.routes')}
         ]
     }
 ];

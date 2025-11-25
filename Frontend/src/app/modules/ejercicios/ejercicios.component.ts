@@ -5,6 +5,6 @@ import { Component } from '@angular/core';
   imports: [],
   templateUrl: './ejercicios.component.html',
 })
-export class Ejercicios {
+export class EjerciciosComponent {
 
 }
