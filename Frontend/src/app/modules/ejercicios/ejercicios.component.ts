@@ -9,11 +9,16 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatStepper, MatStepperModule } from '@angular/material/stepper';
 import { MatButtonModule } from '@angular/material/button';
-import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { FormBuilder, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { EjerciciosService } from 'app/core/ejercicios/ejercicios.service';
+
 @Component({
   selector: 'app-ejercicios',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, MatIconModule, MatInputModule, MatFormFieldModule, MatStepperModule, MatButtonModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, MatIconModule, MatInputModule, MatFormFieldModule, MatStepperModule, MatButtonModule, MatDatepickerModule, MatNativeDateModule, MatCheckboxModule],
   templateUrl: './ejercicios.component.html'
 })
 export class EjerciciosComponent implements OnInit {
@@ -22,15 +27,25 @@ export class EjerciciosComponent implements OnInit {
   user!: User;
   private _unsubscribeAll: Subject<any> = new Subject<any>();
   showModal = false;
-  constructor(private _asignaturasService: AsignaturasService, private _userService: UserService) { }
+  intentosLimitados = false;
+  selectedAsignaturaId: string = '';
+
+  constructor(private _asignaturasService: AsignaturasService, private _userService: UserService, private _ejerciciosService: EjerciciosService) { }
   private _formBuilder = inject(FormBuilder);
 
   firstFormGroup = this._formBuilder.group({
     nombre: ['', Validators.required],
+    fechaInicio: ['', Validators.required],
+    fechaFin: ['', Validators.required],
+    descripcion: ['', Validators.required],
+    numeroIntentos: [''],
+    asignatura: [''],
   });
+
   secondFormGroup = this._formBuilder.group({
     apellido: ['', Validators.required],
   });
+
   ngOnInit(): void {
     this._userService.user$
       .pipe(takeUntil(this._unsubscribeAll))
@@ -49,17 +64,30 @@ export class EjerciciosComponent implements OnInit {
       console.log(this.asignaturas);
     });
   }
+
   submitForm(event: any): void {
     console.log(event);
     if (event == 1) {
-      console.log(this.firstFormGroup.invalid);
+      // Actualizar validación antes de validar
+      this.updateNumeroIntentosValidation();
+
+      // Establecer el ID de la asignatura en el formulario
+      this.firstFormGroup.patchValue({ asignatura: this.selectedAsignaturaId });
+
+      console.log('Valores del formulario:', this.firstFormGroup.value);
+
       if (this.firstFormGroup.invalid) {
+        console.log("Formulario invalido");
         // Marcar todos los controles como touched para mostrar errores
         this.firstFormGroup.markAllAsTouched();
         return;
       }
-      // Solo avanzar si el formulario es válido
-      this.stepper.next();
+      this._ejerciciosService.postEjercicio(this.firstFormGroup.value, event).subscribe((data: any) => {
+        console.log(data);
+        if (data.status == 200) {
+          this.stepper.next();
+        }
+      });
     }
     if (event == 2) {
       if (this.secondFormGroup.invalid) {
@@ -70,16 +98,33 @@ export class EjerciciosComponent implements OnInit {
       // Solo avanzar si el formulario es válido
       this.stepper.next();
     }
-
   }
+
+  // Método para actualizar validación cuando cambia el checkbox
+  updateNumeroIntentosValidation(): void {
+    const numeroIntentosControl = this.firstFormGroup.get('numeroIntentos');
+
+    console.log('Intentos limitados:', this.intentosLimitados);
+    if (this.intentosLimitados) {
+      numeroIntentosControl.setValidators([Validators.required, Validators.min(1)]);
+    } else {
+      numeroIntentosControl.clearValidators();
+    }
+    numeroIntentosControl.updateValueAndValidity();
+  }
+
   toggleAsignatura(index: number): void {
     this.asignaturas[index].expanded = !this.asignaturas[index].expanded;
   }
 
   openCreateEjercicioModal(asig: any): void {
+    this.selectedAsignaturaId = asig.id;
+    console.log('Asignatura seleccionada:', asig.id);
     this.showModal = true;
-
+    this.firstFormGroup.reset();
+    this.secondFormGroup.reset();
   }
+
   closeNewEditModal(): void {
     this.showModal = false;
   }

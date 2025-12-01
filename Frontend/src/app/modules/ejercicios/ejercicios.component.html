@@ -25,50 +25,168 @@
                 </div>
             </div>
         </div>
+
         @if (showModal) {
-        <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-            <div class="bg-white p-8 rounded shadow-lg w-[600px]">
-                <h2 class="text-xl font-bold mb-4">Agregar Ejercicio</h2>
-                <mat-stepper #stepper linear="true">
-                    <mat-step [stepControl]="firstFormGroup" [editable]="false" label="Nombre">
-                        <form [formGroup]="firstFormGroup" value="1">
-                            <mat-form-field>
-                                <mat-label>Nombre</mat-label>
-                                <input matInput placeholder="Nombre" formControlName="nombre" required>
-                                @if (firstFormGroup.get('nombre').hasError('required') &&
-                                firstFormGroup.get('nombre').touched)
-                                {
-                                <mat-error>El nombre es obligatorio</mat-error>
+        <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4">
+            <div class="bg-white rounded-lg shadow-2xl w-full max-w-4xl relative">
+                <!-- Header -->
+                <div class="bg-white border-b border-gray-200 px-8 py-4 rounded-t-lg">
+                    <button class="absolute top-3 right-3 p-2 hover:bg-gray-100 rounded-full transition-colors"
+                        aria-label="Cerrar" (click)="closeNewEditModal()">
+                        <mat-icon class="text-gray-400 hover:text-gray-600"
+                            [svgIcon]="'heroicons_outline:x-mark'"></mat-icon>
+                    </button>
+                    <h2 class="text-2xl font-bold text-gray-800">Agregar Ejercicio</h2>
+                    <p class="text-sm text-gray-500 mt-1">Complete los datos del nuevo ejercicio</p>
+                </div>
+
+                <!-- Content -->
+                <div class="px-8 py-4">
+                    <mat-stepper #stepper linear="true" class="custom-stepper">
+                        <mat-step [stepControl]="firstFormGroup" [editable]="false" label="Datos Generales">
+                            <form [formGroup]="firstFormGroup" class="space-y-4 mt-4">
+                                <!-- Nombre y Descripción en columnas -->
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <mat-form-field appearance="outline" class="w-full">
+                                        <mat-label>Nombre del Ejercicio</mat-label>
+                                        <input matInput placeholder="Ej: Examen Final" formControlName="nombre"
+                                            required>
+                                        <mat-icon matPrefix class="text-gray-400">edit</mat-icon>
+                                        @if (firstFormGroup.get('nombre').hasError('required') &&
+                                        firstFormGroup.get('nombre').touched)
+                                        {
+                                        <mat-error>El nombre es obligatorio</mat-error>
+                                        }
+                                    </mat-form-field>
+
+                                    <mat-form-field appearance="outline" class="w-full">
+                                        <mat-label>Descripción</mat-label>
+                                        <input matInput placeholder="Describe el ejercicio..."
+                                            formControlName="descripcion" required>
+                                        <mat-icon matPrefix class="text-gray-400">description</mat-icon>
+                                        @if (firstFormGroup.get('descripcion').hasError('required') &&
+                                        firstFormGroup.get('descripcion').touched)
+                                        {
+                                        <mat-error>La descripción es obligatoria</mat-error>
+                                        }
+                                    </mat-form-field>
+                                </div>
+
+                                <!-- Fechas en dos columnas -->
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <mat-form-field appearance="outline" class="w-full">
+                                        <mat-label>Fecha de Inicio</mat-label>
+                                        <input matInput [matDatepicker]="pickerInicio" placeholder="Seleccionar fecha"
+                                            formControlName="fechaInicio" required>
+                                        <mat-icon matPrefix class="text-gray-400">event</mat-icon>
+                                        <mat-datepicker-toggle matIconSuffix
+                                            [for]="pickerInicio"></mat-datepicker-toggle>
+                                        <mat-datepicker #pickerInicio></mat-datepicker>
+                                        @if (firstFormGroup.get('fechaInicio').hasError('required') &&
+                                        firstFormGroup.get('fechaInicio').touched)
+                                        {
+                                        <mat-error>La fecha de inicio es obligatoria</mat-error>
+                                        }
+                                    </mat-form-field>
+
+                                    <mat-form-field appearance="outline" class="w-full">
+                                        <mat-label>Fecha de Finalización</mat-label>
+                                        <input matInput [matDatepicker]="pickerFin" placeholder="Seleccionar fecha"
+                                            formControlName="fechaFin" required>
+                                        <mat-icon matPrefix class="text-gray-400">event</mat-icon>
+                                        <mat-datepicker-toggle matIconSuffix [for]="pickerFin"></mat-datepicker-toggle>
+                                        <mat-datepicker #pickerFin></mat-datepicker>
+                                        @if (firstFormGroup.get('fechaFin').hasError('required') &&
+                                        firstFormGroup.get('fechaFin').touched)
+                                        {
+                                        <mat-error>La fecha de finalización es obligatoria</mat-error>
+                                        }
+                                    </mat-form-field>
+                                </div>
+
+                                <!-- Número de Intentos (condicional) -->
+                                @if (intentosLimitados) {
+                                <div class="transition-all duration-300 ease-in-out">
+                                    <mat-form-field appearance="outline" class="w-full md:w-1/2">
+                                        <mat-label>Número de Intentos</mat-label>
+                                        <input matInput type="number" placeholder="Ej: 3"
+                                            formControlName="numeroIntentos" required min="1">
+                                        <mat-icon matPrefix class="text-gray-400">repeat</mat-icon>
+                                        @if (firstFormGroup.get('numeroIntentos').hasError('required') &&
+                                        firstFormGroup.get('numeroIntentos').touched)
+                                        {
+                                        <mat-error>El número de intentos es obligatorio</mat-error>
+                                        }
+                                        @if (firstFormGroup.get('numeroIntentos').hasError('min'))
+                                        {
+                                        <mat-error>El número debe ser mayor a 0</mat-error>
+                                        }
+                                    </mat-form-field>
+                                </div>
                                 }
-                            </mat-form-field>
-                        </form>
-                        <div>
-                            <button mat-button (click)="submitForm(1)">Next</button>
-                        </div>
-                    </mat-step>
-                    <mat-step [stepControl]="secondFormGroup" [editable]="false" label="Apellido">
-                        <form [formGroup]="secondFormGroup" value="2">
-                            <mat-form-field>
-                                <mat-label>Apellido</mat-label>
-                                <input matInput placeholder="Apellido" formControlName="apellido" required>
-                                @if (secondFormGroup.get('apellido').hasError('required') &&
-                                secondFormGroup.get('apellido').touched)
-                                {
-                                <mat-error>El apellido es obligatorio</mat-error>
-                                }
-                            </mat-form-field>
-                        </form>
-                        <div>
-                            <button mat-button (click)="submitForm(2)">Next</button>
-                        </div>
-                    </mat-step>
-                    <mat-step [editable]="false" label="Completado">
-                        formulario hecho
-                        <div>
-                            <button mat-button (click)="closeNewEditModal()">Close</button>
-                        </div>
-                    </mat-step>
-                </mat-stepper>
+                            </form>
+
+                            <!-- Checkbox fuera del formulario -->
+                            <div class="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                <mat-checkbox [(ngModel)]="intentosLimitados"
+                                    (ngModelChange)="updateNumeroIntentosValidation()" color="primary" class="text-sm">
+                                    <span class="font-medium">Limitar número de intentos</span>
+                                </mat-checkbox>
+                                <p class="text-xs text-gray-500 mt-1 ml-8">Activa esta opción si deseas limitar cuántas
+                                    veces pueden realizar el ejercicio</p>
+                            </div>
+
+                            <!-- Botones -->
+                            <div class="flex justify-end mt-6 pb-4">
+                                <button mat-raised-button color="primary" (click)="submitForm(1)" class="px-8">
+                                    Siguiente
+                                    <mat-icon class="ml-2">arrow_forward</mat-icon>
+                                </button>
+                            </div>
+                        </mat-step>
+
+                        <mat-step [stepControl]="secondFormGroup" [editable]="false" label="Apellido">
+                            <form [formGroup]="secondFormGroup" class="space-y-4 mt-4">
+                                <mat-form-field appearance="outline" class="w-full">
+                                    <mat-label>Apellido</mat-label>
+                                    <input matInput placeholder="Ingrese apellido" formControlName="apellido" required>
+                                    <mat-icon matPrefix class="text-gray-400">person</mat-icon>
+                                    @if (secondFormGroup.get('apellido').hasError('required') &&
+                                    secondFormGroup.get('apellido').touched)
+                                    {
+                                    <mat-error>El apellido es obligatorio</mat-error>
+                                    }
+                                </mat-form-field>
+                            </form>
+                            <div class="flex justify-between mt-6 pb-4">
+                                <button mat-button (click)="stepper.previous()" class="px-6">
+                                    <mat-icon class="mr-2">arrow_back</mat-icon>
+                                    Atrás
+                                </button>
+                                <button mat-raised-button color="primary" (click)="submitForm(2)" class="px-8">
+                                    Siguiente
+                                    <mat-icon class="ml-2">arrow_forward</mat-icon>
+                                </button>
+                            </div>
+                        </mat-step>
+
+                        <mat-step [editable]="false" label="Completado">
+                            <div class="text-center py-10">
+                                <div
+                                    class="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-3">
+                                    <mat-icon class="text-green-600 text-4xl">check_circle</mat-icon>
+                                </div>
+                                <h3 class="text-xl font-semibold text-gray-800 mb-2">¡Ejercicio Creado!</h3>
+                                <p class="text-gray-600">El ejercicio se ha guardado correctamente</p>
+                            </div>
+                            <div class="flex justify-center mt-4 pb-4">
+                                <button mat-raised-button color="primary" (click)="closeNewEditModal()" class="px-8">
+                                    Cerrar
+                                </button>
+                            </div>
+                        </mat-step>
+                    </mat-stepper>
+                </div>
             </div>
         </div>
         }

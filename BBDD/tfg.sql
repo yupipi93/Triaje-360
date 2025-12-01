@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 26-11-2025 a las 09:03:07
+-- Tiempo de generación: 01-12-2025 a las 12:24:21
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -20,6 +20,8 @@ SET time_zone = "+00:00";
 --
 -- Base de datos: `tfg`
 --
+CREATE DATABASE IF NOT EXISTS `tfg` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+USE `tfg`;
 
 -- --------------------------------------------------------
 
@@ -37,12 +39,48 @@ CREATE TABLE IF NOT EXISTS `asignatura` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
+-- Truncar tablas antes de insertar `asignatura`
+--
+
+TRUNCATE TABLE `asignatura`;
+--
 -- Volcado de datos para la tabla `asignatura`
 --
 
 INSERT INTO `asignatura` (`id`, `codigo`, `nombre`, `curso`) VALUES
 ('2kd9fckc7t9tla26e1cj', 21008, 'ESTRUCTURA DE DATOS Y ALGORITMIA', '24/25'),
 ('2kjp366a8h24hm4qmnmk', 21019, 'Estructuracion de Contenidos', '24/25');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `ejercicios`
+--
+
+DROP TABLE IF EXISTS `ejercicios`;
+CREATE TABLE IF NOT EXISTS `ejercicios` (
+  `id` varchar(250) NOT NULL,
+  `nombre` varchar(250) NOT NULL,
+  `descripcion` varchar(250) NOT NULL,
+  `fechaInicio` date NOT NULL,
+  `fechaFin` date NOT NULL,
+  `numerointentos` int(11) NOT NULL,
+  `asignatura` varchar(250) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `asig` (`asignatura`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Truncar tablas antes de insertar `ejercicios`
+--
+
+TRUNCATE TABLE `ejercicios`;
+--
+-- Volcado de datos para la tabla `ejercicios`
+--
+
+INSERT INTO `ejercicios` (`id`, `nombre`, `descripcion`, `fechaInicio`, `fechaFin`, `numerointentos`, `asignatura`) VALUES
+('2kkgnpo88d98senc00j4', 'ntynty', 'ntntnt', '2025-12-16', '2025-12-19', 0, '2kd9fckc7t9tla26e1cj');
 
 -- --------------------------------------------------------
 
@@ -59,6 +97,11 @@ CREATE TABLE IF NOT EXISTS `imagenes` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Truncar tablas antes de insertar `imagenes`
+--
+
+TRUNCATE TABLE `imagenes`;
 --
 -- Volcado de datos para la tabla `imagenes`
 --
@@ -82,6 +125,11 @@ CREATE TABLE IF NOT EXISTS `users` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Truncar tablas antes de insertar `users`
+--
+
+TRUNCATE TABLE `users`;
 --
 -- Volcado de datos para la tabla `users`
 --
@@ -109,6 +157,11 @@ CREATE TABLE IF NOT EXISTS `user_asignatura` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
+-- Truncar tablas antes de insertar `user_asignatura`
+--
+
+TRUNCATE TABLE `user_asignatura`;
+--
 -- Volcado de datos para la tabla `user_asignatura`
 --
 
@@ -121,6 +174,12 @@ INSERT INTO `user_asignatura` (`usuario`, `asignatura`) VALUES
 --
 -- Restricciones para tablas volcadas
 --
+
+--
+-- Filtros para la tabla `ejercicios`
+--
+ALTER TABLE `ejercicios`
+  ADD CONSTRAINT `asig` FOREIGN KEY (`asignatura`) REFERENCES `asignatura` (`id`);
 
 --
 -- Filtros para la tabla `user_asignatura`
