@@ -14,6 +14,7 @@ export const environment = {
     ejer: {
         all: '/ejercicios',
         addnew: '/ejercicios',
-        delete: '/ejercicios'
+        delete: '/ejercicios',
+        imagenes: '/imagenes'
     }
 };

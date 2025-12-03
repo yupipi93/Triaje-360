@@ -8,5 +8,6 @@ router.delete('/:idEjercicio', EjerciciosController.deleteEjercicio);
 router.get('/:idEjercicio', EjerciciosController.getOneEjercicios);
 router.put('/:idEjercicio', EjerciciosController.updateEjercicio);
 router.get('/asignaturas/:idAsignatura', EjerciciosController.getEjerciciosFromAsignatura);
+router.get('/imagenes/:tipo', EjerciciosController.getImagenes);
 
 module.exports = router;

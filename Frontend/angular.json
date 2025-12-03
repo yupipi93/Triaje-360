@@ -39,7 +39,8 @@
                                 "glob": "_redirects",
                                 "input": "src",
                                 "output": "/"
-                            }
+                            },
+                            "src/assets"
                         ],
                         "stylePreprocessorOptions": {
                             "includePaths": ["src/@fuse/styles"]

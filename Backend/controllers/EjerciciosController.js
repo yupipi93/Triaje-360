@@ -86,11 +86,25 @@ const getEjerciciosFromAsignatura = async (req, res) => {
     });
 };
 
+const getImagenes = async (req, res) => {
+    jwt.comprobartoken(req, res, async function () {
+        if (req.role !== 'admin' && req.role !== 'prof') {
+            return res.status(403).json({ message: 'Acceso denegado' });
+        }
+        try {
+            const imagenes = await EjerciciosService.getImagenes(req.params.tipo);
+            res.status(200).json(imagenes);
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
+    });
+};
 module.exports = {
     getAllEjercicios,
     postEjercicio,
     deleteEjercicio,
     getOneEjercicios,
     updateEjercicio,
-    getEjerciciosFromAsignatura
+    getEjerciciosFromAsignatura,
+    getImagenes
 };

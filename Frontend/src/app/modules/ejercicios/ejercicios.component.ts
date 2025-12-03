@@ -29,7 +29,7 @@ export class EjerciciosComponent implements OnInit {
   showModal = false;
   intentosLimitados = false;
   selectedAsignaturaId: string = '';
-
+  ejercicio: any
   constructor(private _asignaturasService: AsignaturasService, private _userService: UserService, private _ejerciciosService: EjerciciosService) { }
   private _formBuilder = inject(FormBuilder);
 
@@ -43,8 +43,10 @@ export class EjerciciosComponent implements OnInit {
   });
 
   secondFormGroup = this._formBuilder.group({
-    apellido: ['', Validators.required],
+    escenarios: this._formBuilder.control<any[]>([], Validators.required),
+    ejercicio: [''],
   });
+  imagenes: any[] = [];
 
   ngOnInit(): void {
     this._userService.user$
@@ -66,6 +68,7 @@ export class EjerciciosComponent implements OnInit {
   }
 
   submitForm(event: any): void {
+
     console.log(event);
     if (event == 1) {
       // Actualizar validación antes de validar
@@ -86,6 +89,10 @@ export class EjerciciosComponent implements OnInit {
         console.log(data);
         if (data.status == 200) {
           this.stepper.next();
+          event++;
+          this.ejercicio = data.ejercicio.id;
+          this.getimagenes(event, this.ejercicio);
+          console.log(event);
         }
       });
     }
@@ -95,11 +102,45 @@ export class EjerciciosComponent implements OnInit {
         this.secondFormGroup.markAllAsTouched();
         return;
       }
-      // Solo avanzar si el formulario es válido
-      this.stepper.next();
+      console.log(this.ejercicio);
+      this.secondFormGroup.patchValue({ ejercicio: this.ejercicio });
+      this._ejerciciosService.postEjercicio(this.secondFormGroup.value, event).subscribe((data: any) => {
+        console.log(data);
+        if (data.status == 200) {
+          this.stepper.next();
+        }
+      });
+    }
+  }
+  getimagenes(event: any, ejercicio: any): void {
+    var tipo;
+    if (event == 2) {
+      tipo = "escenario"
+      this._ejerciciosService.getImagenes(tipo).subscribe((data: any) => {
+        console.log(data);
+        this.imagenes = data;
+      });
     }
   }
 
+  selectEscenario(imagen: any): void {
+    const escenariosControl = this.secondFormGroup.get('escenarios');
+    const currentEscenarios = escenariosControl?.value || [];
+    const index = currentEscenarios.indexOf(imagen.id);
+
+    if (index === -1) {
+      // Add if not present
+      escenariosControl?.patchValue([...currentEscenarios, imagen.id]);
+    } else {
+      // Remove if present
+      const newEscenarios = currentEscenarios.filter((id: any) => id !== imagen.id);
+      escenariosControl?.patchValue(newEscenarios);
+    }
+    // Manually trigger validation check if needed
+    if (!escenariosControl?.value || escenariosControl?.value.length === 0) {
+      escenariosControl?.setErrors({ required: true });
+    }
+  }
   // Método para actualizar validación cuando cambia el checkbox
   updateNumeroIntentosValidation(): void {
     const numeroIntentosControl = this.firstFormGroup.get('numeroIntentos');

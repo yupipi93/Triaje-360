@@ -14,6 +14,11 @@ export class EjerciciosService {
         const headers = new HttpHeaders().set('Authorization', `${token}`);
         return this._httpClient.get(`${environment.apiUrl}${environment.asig.all}`, { headers });
     }
+    getImagenes(tipo: string): Observable<any> {
+        const token = this._authService.accessToken;
+        const headers = new HttpHeaders().set('Authorization', `${token}`);
+        return this._httpClient.get(`${environment.apiUrl}${environment.ejer.all}${environment.ejer.imagenes}/${tipo}`, { headers });
+    }
 
     postEjercicio(ejercicio: any, faseId: any): Observable<any> {
         const token = this._authService.accessToken;
