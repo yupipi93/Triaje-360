@@ -3,52 +3,66 @@ import { FuseNavigationItem } from '@fuse/components/navigation';
 
 export const adminNavigation: FuseNavigationItem[] = [
     {
-        id   : 'example',
+        id: 'example',
         title: 'Example',
-        type : 'basic',
-        icon : 'heroicons_outline:chart-pie',
-        link : '/example'
+        type: 'basic',
+        icon: 'heroicons_outline:chart-pie',
+        link: '/example'
     },
     {
-        id   : 'asignaturas',
+        id: 'asignaturas',
         title: 'Asignaturas',
-        type : 'basic',
-        icon : 'heroicons_outline:chart-pie',
-        link : '/asignaturas'
+        type: 'basic',
+        icon: 'heroicons_outline:chart-pie',
+        link: '/asignaturas'
+    },
+    {
+        id: 'pacientes',
+        title: 'Pacientes',
+        type: 'basic',
+        icon: 'heroicons_outline:chart-pie',
+        link: '/pacientes'
     }
 ];
 export const profNavigation: FuseNavigationItem[] = [
     {
-        id   : 'example',
+        id: 'example',
         title: 'Example',
-        type : 'basic',
-        icon : 'heroicons_outline:chart-pie',
-        link : '/example'
+        type: 'basic',
+        icon: 'heroicons_outline:chart-pie',
+        link: '/example'
     },
     {
-        id:'ejercicios',
+        id: 'ejercicios',
         title: 'Ejercicios',
         type: 'basic',
         icon: 'heroicons_outline:users',
         link: '/ejercicios'
+    },
+    {
+        id: 'pacientes',
+        title: 'Pacientes',
+        type: 'basic',
+        icon: 'heroicons_outline:chart-pie',
+        link: '/pacientes'
     }
-    
+
 ];
 export const aluNavigation: FuseNavigationItem[] = [
     {
-        id   : 'example',
+        id: 'example',
         title: 'Example',
-        type : 'basic',
-        icon : 'heroicons_outline:chart-pie',
-        link : '/example'
+        type: 'basic',
+        icon: 'heroicons_outline:chart-pie',
+        link: '/example'
     }
 ];
 export const horizontalNavigation: FuseNavigationItem[] = [
     {
-        id   : 'example',
+        id: 'example',
         title: 'Example',
-        type : 'basic',
-        icon : 'heroicons_outline:chart-pie',
-        link : '/example'
+        type: 'basic',
+        icon: 'heroicons_outline:chart-pie',
+        link: '/example'
     }
 ];

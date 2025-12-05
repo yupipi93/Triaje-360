@@ -16,5 +16,10 @@ export const environment = {
         addnew: '/ejercicios',
         delete: '/ejercicios',
         imagenes: '/imagenes'
+    },
+    pac: {
+        all: '/pacientes',
+        addnew: '/pacientes',
+        delete: '/pacientes'
     }
 };
