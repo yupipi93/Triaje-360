@@ -122,40 +122,113 @@ const postPacienteToEjercicio = async (body) => {
     return new Promise((resolve, reject) => {
         console.log(body.imagenSeleccionada);
          const accionesPacientes = body.accionesPaciente;
-        idPaciente = Date.now().toString(30) + Math.random().toString(30).substring(2);
+        let idPaciente = (Date.now().toString(30) + Math.random().toString(30).substring(2));
         if (!body || !body.ejercicio  || !body.color || !body.accionesPaciente) {
             return reject({ status: 400, message: 'Body, ejercicio, paciente, color y accionesPaciente son requeridos' });
         }
-         db.query('INSERT INTO pacientes_ejercicio(id,nombre,descripcion,color,Tempeora, imagen,ejercicio) VALUES (?, ?, ?, ?, ?, ?,?)', [idPaciente, body.nombre, body.descripcion, body.color, body.tiempoEmpeoramiento, body.imagenSeleccionada,body.ejercicio], async (err, results) => {
-            if (err) return reject(err);
-             if (Array.isArray(accionesPacientes)) {
-                console.log("es un array");
-                // Iterar sobre cada acción y añadirla a la tabla acciones_paciente
-                for (let i = 0; i < accionesPacientes.length; i++) {
-                    const accionId = accionesPacientes[i];
-
-                    try {
-                        // Insertar cada acción de manera secuencial
-                        await new Promise((resolveAccion, rejectAccion) => {
-                            db.query('INSERT INTO acciones_paciente_ejercicio (paciente_id, acciones_id,ejercicio_id) VALUES (?, ?,?)', [idPaciente, accionId,body.ejercicio], (errAccion, resultsAccion) => {
-                                if (errAccion) {
-                                    console.error("Error al insertar acción:", errAccion);
-                                    return rejectAccion(errAccion);
+        
+        if(body.id){
+            // Si existe ID, verificar si el paciente-ejercicio existe
+            db.query('SELECT * FROM pacientes_ejercicio WHERE id = ? AND ejercicio = ?', [body.id, body.ejercicio], async (errCheck, resultsCheck) => {
+                if (errCheck) return reject(errCheck);
+                
+                if (resultsCheck.length > 0) {
+                    // Si existe, actualizar
+                    db.query('UPDATE pacientes_ejercicio SET nombre = ?, descripcion = ?, color = ?, Tempeora = ?, imagen = ? WHERE id = ? AND ejercicio = ?', 
+                        [body.nombre, body.descripcion, body.color, body.tiempoEmpeoramiento, body.imagenSeleccionada, body.id, body.ejercicio], 
+                        async (errUpdate, resultsUpdate) => {
+                            if (errUpdate) return reject(errUpdate);
+                            
+                            // Actualizar acciones
+                            if (Array.isArray(accionesPacientes)) {
+                                // Primero eliminar acciones anteriores
+                                db.query('DELETE FROM acciones_paciente_ejercicio WHERE paciente_id = ? AND ejercicio_id = ?', [body.id, body.ejercicio], async (errDelete, resultsDelete) => {
+                                    if (errDelete) return reject(errDelete);
+                                    
+                                    // Insertar nuevas acciones
+                                    for (let i = 0; i < accionesPacientes.length; i++) {
+                                        const accionId = accionesPacientes[i];
+                                        try {
+                                            await new Promise((resolveAccion, rejectAccion) => {
+                                                db.query('INSERT INTO acciones_paciente_ejercicio (paciente_id, acciones_id, ejercicio_id) VALUES (?, ?, ?)', 
+                                                    [idPaciente, accionId, body.ejercicio], (errAccion, resultsAccion) => {
+                                                        if (errAccion) return rejectAccion(errAccion);
+                                                        resolveAccion(resultsAccion);
+                                                    });
+                                            });
+                                        } catch (errAccion) {
+                                            console.error("Error al insertar acción:", errAccion);
+                                            return reject({ status: 500, message: "Error al insertar acciones del paciente", error: err.message });
+                                        }
+                                    }
+                                    resolve({ status: 200, message: "Paciente actualizado correctamente", results: resultsUpdate });
+                                });
+                            } else {
+                                resolve({ status: 200, message: "Paciente actualizado correctamente", results: resultsUpdate });
+                            }
+                        }
+                    );
+                } else {
+                    // Si no existe, insertar
+                    db.query('INSERT INTO pacientes_ejercicio(id,nombre,descripcion,color,Tempeora, imagen,ejercicio) VALUES (?, ?, ?, ?, ?, ?,?)', 
+                        [idPaciente, body.nombre, body.descripcion, body.color, body.tiempoEmpeoramiento, body.imagenSeleccionada, body.ejercicio], 
+                        async (err, results) => {
+                            if (err) return reject(err);
+                            if (Array.isArray(accionesPacientes)) {
+                                for (let i = 0; i < accionesPacientes.length; i++) {
+                                    const accionId = accionesPacientes[i];
+                                    try {
+                                        await new Promise((resolveAccion, rejectAccion) => {
+                                            db.query('INSERT INTO acciones_paciente_ejercicio (paciente_id, acciones_id, ejercicio_id) VALUES (?, ?, ?)', 
+                                                [idPaciente, accionId, body.ejercicio], (errAccion, resultsAccion) => {
+                                                    if (errAccion) return rejectAccion(errAccion);
+                                                    resolveAccion(resultsAccion);
+                                                });
+                                        });
+                                    } catch (errAccion) {
+                                        console.error("Error al insertar acción:", errAccion);
+                                        return reject({ status: 500, message: "Error al insertar acciones del paciente", error: errAccion });
+                                    }
                                 }
-                                resolveAccion(resultsAccion);
+                            }
+                            resolve({ status: 200, message: "Paciente añadido al ejercicio correctamente", results });
+                        }
+                    );
+                }
+            });
+        } else {
+            // Si no existe ID, crear nuevo
+               db.query('INSERT INTO pacientes_ejercicio(id,nombre,descripcion,color,Tempeora, imagen,ejercicio) VALUES (?, ?, ?, ?, ?, ?,?)', [idPaciente, body.nombre, body.descripcion, body.color, body.tiempoEmpeoramiento, body.imagenSeleccionada,body.ejercicio], async (err, results) => {
+                if (err) return reject(err);
+                if (Array.isArray(accionesPacientes)) {
+                    console.log("es un array");
+                    // Iterar sobre cada acción y añadirla a la tabla acciones_paciente
+                    for (let i = 0; i < accionesPacientes.length; i++) {
+                        const accionId = accionesPacientes[i];
+
+                        try {
+                            // Insertar cada acción de manera secuencial
+                            await new Promise((resolveAccion, rejectAccion) => {
+                                db.query('INSERT INTO acciones_paciente_ejercicio (paciente_id, acciones_id,ejercicio_id) VALUES (?, ?,?)', [idPaciente, accionId,body.ejercicio], (errAccion, resultsAccion) => {
+                                    if (errAccion) {
+                                        console.error("Error al insertar acción:", errAccion);
+                                        return rejectAccion(errAccion);
+                                    }
+                                    resolveAccion(resultsAccion);
+                                });
                             });
-                        });
-                    } catch (errAccion) {
-                        // Si ocurre un error al insertar una acción, lo informamos
-                        console.error("Error al insertar acción del paciente:", errAccion);
-                        return reject({ status: 500, message: "Error al insertar acciones del paciente", error: errAccion });
+                        } catch (errAccion) {
+                            // Si ocurre un error al insertar una acción, lo informamos
+                            console.error("Error al insertar acción del paciente:", errAccion);
+                            return reject({ status: 500, message: "Error al insertar acciones del paciente", error: errAccion });
+                        }
                     }
                 }
-            }
-            resolve({ status: 200, message: "Paciente añadido al ejercicio correctamente", results });
+                resolve({ status: 200, message: "Paciente añadido al ejercicio correctamente", results });
 
+            }
+            );
         }
-        );
     });
 }
 const getPacientesEjercicio = async (idEjercicio) => {

@@ -52,6 +52,7 @@ export class EjerciciosComponent implements OnInit {
     ejercicio: [''],
   });
   ThirdFormGroup = this._formBuilder.group({
+    id:['',Validators.required],
     nombre: ['', Validators.required],
     descripcion: ['', Validators.required],
     color: ['', Validators.required],
@@ -151,12 +152,19 @@ export class EjerciciosComponent implements OnInit {
       }
       this._ejerciciosService.getPacientesEjercicio(this.ejercicio).subscribe((data: any) => {
         console.log(data);
-        if(data.message=="No se encontraron pacientes para este ejercicio"){
+        if(data.length == 0){
           alert("Debe agregar al menos un paciente al ejercicio");
           return;
+          
         }
-        this.closeNewEditModal();
+        if (data.length > 0) {
+          //alert("Ejercicio creado correctamente");
+          this.stepper.next();
+        }
+        
+        // this.closeNewEditModal();
       });
+
     } 
   }
   getimagenes(event: any, ejercicio: any): void {
@@ -192,6 +200,7 @@ export class EjerciciosComponent implements OnInit {
   seleccionarPaciente(paciente: any): void {
     this.pacienteSeleccionado = paciente;
     console.log(this.pacienteSeleccionado);
+this.ThirdFormGroup.patchValue({ id: this.pacienteSeleccionado.id });
      const imagenCorrespondiente = this.imagenesPacientes.find(
     img => img.nombre_imagen === this.pacienteSeleccionado.nombre_imagen
   );
@@ -266,6 +275,7 @@ export class EjerciciosComponent implements OnInit {
   }
 
   addPacienteToExercise(): void {
+    
     this.ThirdFormGroup.patchValue({ ejercicio: this.ejercicio });
     const pacienteData = this.ThirdFormGroup.value;
     if (pacienteData.tiempoEmpeoramiento) {
@@ -282,6 +292,8 @@ export class EjerciciosComponent implements OnInit {
       }
     });
   }
+ 
+
   getPacientesEjercicio(): void {
     this._ejerciciosService.getPacientesEjercicio(this.ejercicio).subscribe((data: any) => {
       console.log(data);
