@@ -197,10 +197,11 @@ export class EjerciciosComponent implements OnInit {
     });
   }
 
-  seleccionarPaciente(paciente: any): void {
+  seleccionarPaciente(paciente: any): void {  
     this.pacienteSeleccionado = paciente;
     console.log(this.pacienteSeleccionado);
 this.ThirdFormGroup.patchValue({ id: this.pacienteSeleccionado.id });
+console.log(this.ThirdFormGroup.value);
      const imagenCorrespondiente = this.imagenesPacientes.find(
     img => img.nombre_imagen === this.pacienteSeleccionado.nombre_imagen
   );

@@ -128,11 +128,14 @@ const postPacienteToEjercicio = async (body) => {
         }
         
         if(body.id){
+            console.log(body.id)
             // Si existe ID, verificar si el paciente-ejercicio existe
             db.query('SELECT * FROM pacientes_ejercicio WHERE id = ? AND ejercicio = ?', [body.id, body.ejercicio], async (errCheck, resultsCheck) => {
+                console.log(resultsCheck);
                 if (errCheck) return reject(errCheck);
                 
                 if (resultsCheck.length > 0) {
+                    console.log("tiene id");
                     // Si existe, actualizar
                     db.query('UPDATE pacientes_ejercicio SET nombre = ?, descripcion = ?, color = ?, Tempeora = ?, imagen = ? WHERE id = ? AND ejercicio = ?', 
                         [body.nombre, body.descripcion, body.color, body.tiempoEmpeoramiento, body.imagenSeleccionada, body.id, body.ejercicio], 
@@ -151,7 +154,7 @@ const postPacienteToEjercicio = async (body) => {
                                         try {
                                             await new Promise((resolveAccion, rejectAccion) => {
                                                 db.query('INSERT INTO acciones_paciente_ejercicio (paciente_id, acciones_id, ejercicio_id) VALUES (?, ?, ?)', 
-                                                    [idPaciente, accionId, body.ejercicio], (errAccion, resultsAccion) => {
+                                                    [body.id, accionId, body.ejercicio], (errAccion, resultsAccion) => {
                                                         if (errAccion) return rejectAccion(errAccion);
                                                         resolveAccion(resultsAccion);
                                                     });
