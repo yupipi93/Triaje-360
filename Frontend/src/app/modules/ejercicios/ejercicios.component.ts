@@ -35,6 +35,7 @@ export class EjerciciosComponent implements OnInit {
   pacientesEjercicio: any[] = [];
   pacienteSeleccionado: any;
   empeoramientoLimitado: any;
+  imagenSeleccionadaId: any = null;
   constructor(private _asignaturasService: AsignaturasService, private _userService: UserService, private _ejerciciosService: EjerciciosService, private _pacientesService: PacientesService) { }
   private _formBuilder = inject(FormBuilder);
 
@@ -160,6 +161,8 @@ export class EjerciciosComponent implements OnInit {
         if (data.length > 0) {
           //alert("Ejercicio creado correctamente");
           this.stepper.next();
+          event++;
+          this.getimagenes(event, this.ejercicio);
         }
         
         // this.closeNewEditModal();
@@ -181,6 +184,13 @@ export class EjerciciosComponent implements OnInit {
       this._ejerciciosService.getImagenes(tipo).subscribe((data: any) => {
         console.log(data);
         this.imagenesPacientes = data;
+      });
+    }
+    if (event == 4 && ejercicio) {
+      this.imagenSeleccionadaId = null;
+      this._ejerciciosService.getImagenesFromEjercicio(ejercicio).subscribe((data: any) => {
+        console.log(data);
+        this.imagenesEscenarios = data;
       });
     }
   }
@@ -269,6 +279,7 @@ console.log(this.ThirdFormGroup.value);
     this.showModal = true;
     this.firstFormGroup.reset();
     this.secondFormGroup.reset();
+    this.imagenSeleccionadaId = null;
   }
 
   closeNewEditModal(): void {
@@ -309,5 +320,19 @@ console.log(this.ThirdFormGroup.value);
    */
   getAccionLabel(accionId: number): string {
     return this.accionesPaciente.find(a => a.id == accionId)?.nombre_accion || '';
+  }
+
+  /**
+   * Selecciona una imagen del escenario y deselecciona la anterior
+   * @param imagenId - El ID de la imagen a seleccionar
+   */
+  seleccionarImagenEscenario(imagenId: any): void {
+    // Si es la misma imagen, deselecciona. Si es diferente, selecciona solo esa
+    if (this.imagenSeleccionadaId === imagenId) {
+      this.imagenSeleccionadaId = null;
+    } else {
+      this.imagenSeleccionadaId = imagenId;
+    }
+    console.log('Imagen seleccionada:', this.imagenSeleccionadaId);
   }
 }

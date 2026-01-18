@@ -9,15 +9,7 @@ const getAllEjercicios = async () => {
         });
     });
 };
-const getMaxOrden = (ejercicioId) => {
-    return new Promise((resolve, reject) => {
-        // Obtener el valor máximo de 'orden' para el ejercicio
-        db.query('SELECT MAX(orden) as maxOrden FROM imagenes_ejercicio WHERE ejercicio = ?', [ejercicioId], (err, results) => {
-            if (err) return reject(err);
-            resolve(results[0].maxOrden || 0);  // Si no hay registros, devuelve 0
-        });
-    });
-};
+
 const postEjercicio = async (body, phaseId) => {
     return new Promise(async (resolve, reject) => {
         if (!body || !phaseId) {
@@ -252,10 +244,19 @@ const getPacientesEjercicio = async (idEjercicio) => {
         });
     });
 }
-module.exports = {
+const getImagenesFromEjercicio = async (ejercicioId) => {
+    return new Promise((resolve, reject) => {
+        db.query('SELECT ie.*, i.nombre_imagen FROM imagenes_ejercicio ie JOIN imagenes i ON ie.imagen = i.id WHERE ie.ejercicio = ? ORDER BY ie.orden ASC', [ejercicioId], (err, results) => {
+            if (err) return reject({ status: 500, message: "Error al obtener las imagenes del ejercicio", error: err });
+            resolve(results);
+        });
+    });
+}
+            module.exports = {
     getAllEjercicios,
     postEjercicio,
     getImagenes,
     postPacienteToEjercicio,
-    getPacientesEjercicio
+    getPacientesEjercicio,
+    getImagenesFromEjercicio
 }

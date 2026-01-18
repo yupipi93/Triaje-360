@@ -125,6 +125,20 @@ const getPacientesEjercicio = async (req, res) => {
         }
     });
 };
+
+const getImagenesFromEjercicio = async (req, res) => {
+    jwt.comprobartoken(req, res, async function () {
+        if (req.role !== 'prof') {
+            return res.status(403).json({ message: 'Acceso denegado' });
+        }
+        try {
+            const imagenes = await EjerciciosService.getImagenesFromEjercicio(req.params.ejercicioId);
+            res.status(200).json(imagenes);
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
+    });
+};
 module.exports = {
     getAllEjercicios,
     postEjercicio,
@@ -134,5 +148,6 @@ module.exports = {
     getEjerciciosFromAsignatura,
     getImagenes,
     postPacienteToEjercicio,
-    getPacientesEjercicio
+    getPacientesEjercicio,
+    getImagenesFromEjercicio
 };
