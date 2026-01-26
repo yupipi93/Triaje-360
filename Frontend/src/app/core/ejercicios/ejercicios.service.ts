@@ -45,4 +45,11 @@ export class EjerciciosService {
         const headers = new HttpHeaders().set('Authorization', `${token}`);
         return this._httpClient.post(`${environment.apiUrl}${environment.ejer.all}/${ejercicioId}/locatePaciente`, pacienteData, { headers });
     }
+
+    getEjerciciosByAsignatura(asignaturaId: string): Observable<any> {
+        const token = this._authService.accessToken;
+        const headers = new HttpHeaders().set('Authorization', `${token}`);
+        console.log("Fetching ejercicios for asignatura ID:", asignaturaId);
+        return this._httpClient.get(`${environment.apiUrl}${environment.ejer.all}/asignaturas/${asignaturaId}`, { headers });
+    }
 }

@@ -1,5 +1,6 @@
 import { Component, inject, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { AsignaturasService } from 'app/core/asignaturas/asignaturas.service';
 import { UserService } from 'app/core/user/user.service';
 import { User } from 'app/core/user/user.types';
@@ -42,7 +43,8 @@ export class EjerciciosComponent implements OnInit {
   pacientesColocadosPorImagen: { [imagenId: string]: { [key: string]: any } } = {};
   searchTermPacientes: string = '';
   pacientesFiltrados: any[] = [];
-  constructor(private _asignaturasService: AsignaturasService, private _userService: UserService, private _ejerciciosService: EjerciciosService, private _pacientesService: PacientesService, private cdr: ChangeDetectorRef) { }
+  ejerciciosPorAsignatura: { [key: string]: any[] } = {};
+  constructor(private _asignaturasService: AsignaturasService, private _userService: UserService, private _ejerciciosService: EjerciciosService, private _pacientesService: PacientesService, private cdr: ChangeDetectorRef, private _router: Router) { }
   private _formBuilder = inject(FormBuilder);
 
   firstFormGroup = this._formBuilder.group({
@@ -336,6 +338,18 @@ console.log(this.ThirdFormGroup.value);
 
   toggleAsignatura(index: number): void {
     this.asignaturas[index].expanded = !this.asignaturas[index].expanded;
+    
+    // Cargar ejercicios si se expande y aún no están cargados
+    if (this.asignaturas[index].expanded && !this.ejerciciosPorAsignatura[this.asignaturas[index].id]) {
+      this.getEjerciciosByAsignatura(this.asignaturas[index].id);
+    }
+  }
+
+  getEjerciciosByAsignatura(asignaturaId: string): void {
+    this._ejerciciosService.getEjerciciosByAsignatura(asignaturaId).subscribe((data: any) => {
+      this.ejerciciosPorAsignatura[asignaturaId] = data;
+      console.log('Ejercicios por asignatura:', this.ejerciciosPorAsignatura);
+    });
   }
 
   openCreateEjercicioModal(asig: any): void {
@@ -697,5 +711,12 @@ console.log(this.ThirdFormGroup.value);
    */
   getColFromIndex(index: number): number {
     return (index % 16) + 1;
+  }
+
+  /**
+   * Navega al componente marzipano360 con el ID del ejercicio
+   */
+  navegarAMarzipano360(ejercicioId: string): void {
+    this._router.navigate(['/marzipano360', ejercicioId]);
   }
 }

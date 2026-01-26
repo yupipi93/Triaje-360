@@ -99,7 +99,7 @@ const deleteUserfromAsignature = async (req, res) => {
 
 const getAsignaturesFromProf = async (req, res) => {
     jwt.comprobartoken(req, res, async function () {
-        if (req.role !== 'admin' && req.role !== 'prof') {
+        if (req.role !== 'admin' && req.role !== 'prof' && req.role!=='alu') {
             return res.status(403).json({ message: 'Acceso denegado' });
         }
         try {

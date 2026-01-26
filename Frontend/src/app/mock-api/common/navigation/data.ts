@@ -55,6 +55,13 @@ export const aluNavigation: FuseNavigationItem[] = [
         type: 'basic',
         icon: 'heroicons_outline:chart-pie',
         link: '/example'
+    },
+    {
+        id: 'ejercicios',
+        title: 'Ejercicios',
+        type: 'basic',
+        icon: 'heroicons_outline:users',
+        link: '/ejercicios'
     }
 ];
 export const horizontalNavigation: FuseNavigationItem[] = [

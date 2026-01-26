@@ -266,6 +266,17 @@ const locatePacienteInEjercicio = async (idEjercicio, body) => {
                 resolve({ status: 200, message: "Ubicación del paciente actualizada correctamente", results });
             });
     });
+};
+
+    const getEjerciciosFromAsignatura = async (idAsignatura) => {
+        console.log(idAsignatura);
+        return new Promise((resolve, reject) => {
+            db.query('SELECT * FROM ejercicios WHERE asignatura = ?', [idAsignatura], (err, results) => {
+                console.log(results);
+                if (err) return reject(err);
+                resolve(results);
+            });
+        });
 }
 
             module.exports = {
@@ -275,5 +286,7 @@ const locatePacienteInEjercicio = async (idEjercicio, body) => {
     postPacienteToEjercicio,
     getPacientesEjercicio,
     getImagenesFromEjercicio,
-    locatePacienteInEjercicio
+    locatePacienteInEjercicio,
+    getEjerciciosFromAsignatura
+
 }

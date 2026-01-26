@@ -74,11 +74,13 @@ const updateEjercicio = async (req, res) => {
 
 const getEjerciciosFromAsignatura = async (req, res) => {
     jwt.comprobartoken(req, res, async function () {
-        if (req.role !== 'admin' && req.role !== 'prof') {
+        if (req.role !== 'admin' && req.role !== 'prof' && req.role!=='alu') {
             return res.status(403).json({ message: 'Acceso denegado' });
         }
         try {
-            const ejercicios = await EjerciciosService.getEjerciciosFromAsignatura(req.params.id);
+            console.log(req.params);
+            console.log("ID Asignatura:", req.params.id);
+            const ejercicios = await EjerciciosService.getEjerciciosFromAsignatura(req.params.idAsignatura);
             res.status(200).json(ejercicios);
         } catch (error) {
             res.status(500).json({ message: error.message });
