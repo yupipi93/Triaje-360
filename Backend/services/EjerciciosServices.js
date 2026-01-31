@@ -228,7 +228,7 @@ const postPacienteToEjercicio = async (body) => {
 }
 const getPacientesEjercicio = async (idEjercicio) => {
     return new Promise((resolve, reject) => {
-         db.query('SELECT p.*, GROUP_CONCAT(a.nombre_accion SEPARATOR ", ") AS acciones, GROUP_CONCAT(ap.acciones_id) as acciones_ids, i.nombre_imagen FROM Pacientes_ejercicio p LEFT JOIN Acciones_paciente_ejercicio ap ON p.id = ap.paciente_id LEFT JOIN Acciones a ON ap.acciones_id = a.id LEFT JOIN Imagenes i ON p.imagen = i.id WHERE p.ejercicio=? GROUP BY p.id',[idEjercicio], (err, results) => {
+         db.query('SELECT p.*, GROUP_CONCAT(a.nombre_accion SEPARATOR ", ") AS acciones, GROUP_CONCAT(ap.acciones_id) as acciones_ids, i.nombre_imagen, upe.fila, upe.columna, upe.imagen as ubicacion_imagen FROM Pacientes_ejercicio p LEFT JOIN Acciones_paciente_ejercicio ap ON p.id = ap.paciente_id LEFT JOIN Acciones a ON ap.acciones_id = a.id LEFT JOIN Imagenes i ON p.imagen = i.id LEFT JOIN ubicacion_pacientes_ejercicio upe ON p.id = upe.paciente AND p.ejercicio = upe.ejercicio WHERE p.ejercicio=? GROUP BY p.id',[idEjercicio], (err, results) => {
             if (err) return reject(err);
 
             // Process results to convert acciones_ids string to array
@@ -236,7 +236,8 @@ const getPacientesEjercicio = async (idEjercicio) => {
                 const accionesIds = paciente.acciones_ids ? paciente.acciones_ids.split(',').map(Number) : [];
                 return {
                     ...paciente,
-                    accionesPaciente: accionesIds
+                    accionesPaciente: accionesIds,
+                    posicion: paciente.fila !== null ? { fila: paciente.fila, columna: paciente.columna, imagen: paciente.ubicacion_imagen } : null
                 };
             });
 

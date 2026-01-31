@@ -116,7 +116,7 @@ const postPacienteToEjercicio = async (req, res) => {
 };
 const getPacientesEjercicio = async (req, res) => {
     jwt.comprobartoken(req, res, async function () {
-        if ( req.role !== 'prof') {
+        if ( req.role !== 'prof'&& req.role !== 'alu') {
             return res.status(403).json({ message: 'Acceso denegado' });
         }   
         try {
@@ -130,7 +130,7 @@ const getPacientesEjercicio = async (req, res) => {
 
 const getImagenesFromEjercicio = async (req, res) => {
     jwt.comprobartoken(req, res, async function () {
-        if (req.role !== 'prof') {
+        if (req.role !== 'prof' && req.role !== 'alu') {
             return res.status(403).json({ message: 'Acceso denegado' });
         }
         try {
