@@ -1,7 +1,7 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { EjerciciosService } from 'app/core/ejercicios/ejercicios.service';
-import * as Marzipano from 'marzipano';
+import * as Marzipano from 'marzipano';  // Importar Marzipano
 @Component({
   selector: 'app-marzipano360',
   imports: [],
@@ -36,29 +36,34 @@ export class Marzipano360Component implements OnInit {
       console.log('Inicializando Marzipano en el elemento:', this.panoElement.nativeElement);
       const viewer = new Marzipano.Viewer(this.panoElement.nativeElement);
 
-      // Aquí debes añadir el código para configurar y cargar la panorámica
+      // Configurar con 6 imágenes de cubo (0.png, 1.png, 2.png, 3.png, 4.png, 5.png)
       const source = Marzipano.ImageUrlSource.fromString(
-        'assets/escenarios/escenario1.JPG' // URL de tu imagen panorámica
+        'assets/escenarios/Tiles/escenario1/{f}.png'
       );
   
-  const geometry = new Marzipano.CubeGeometry(
- [
-         
+      const geometry = new Marzipano.CubeGeometry(
+        [
           {
             "tileSize": 2048,
             "size": 2048
           }
         ]
-  
-       
       );
       const view = new Marzipano.RectilinearView();
-
-      viewer.createScene({
+      
+      // Limitar el movimiento vertical estrictamente
+      // El pitch está entre -π/2 y π/2 (arriba a abajo)
+      const limiter = Marzipano.RectilinearView.limit.pitch(
+        -0.3,  // Límite inferior (~-17 grados)
+        0.3    // Límite superior (~+17 grados)
+      );
+      view.setLimiter(limiter);
+      const scene = viewer.createScene({
         source: source,
         geometry: geometry,
-        view: view,
-      }).switchTo();
+        view: view
+      });
+      scene.switchTo();
 }
 else{
       console.error('El elemento pano no está disponible.');
