@@ -36,7 +36,7 @@ const deleteEjercicio = async (req, res) => {
             return res.status(403).json({ message: 'Acceso denegado' });
         }
         try {
-            const ejercicio = await EjerciciosService.deleteEjercicio(req.params.id);
+            const ejercicio = await EjerciciosService.deleteEjercicio(req.params.idEjercicio);
             res.status(200).json(ejercicio);
         } catch (error) {
             res.status(500).json({ message: error.message });

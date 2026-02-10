@@ -31,6 +31,8 @@ export class EjerciciosComponent implements OnInit {
   showModal = false;
   showAccionesModal = false;
   showImagenModal = false;
+  showDeleteConfirmModal = false;
+  ejercicioAEliminar: any = null;
   intentosLimitados = false;
   selectedAsignaturaId: string = '';
   ejercicio: any
@@ -718,5 +720,44 @@ console.log(this.ThirdFormGroup.value);
    */
   navegarAMarzipano360(ejercicioId: string): void {
     this._router.navigate(['/marzipano360', ejercicioId]);
+  }
+
+  /**
+   * Abre el modal de confirmación de eliminación
+   */
+  openDeleteConfirmModal(ejercicio: any): void {
+    this.ejercicioAEliminar = ejercicio;
+    this.showDeleteConfirmModal = true;
+  }
+
+  /**
+   * Cierra el modal de confirmación de eliminación
+   */
+  closeDeleteConfirmModal(): void {
+    this.showDeleteConfirmModal = false;
+    this.ejercicioAEliminar = null;
+  }
+
+  /**
+   * Elimina el ejercicio confirmado
+   */
+  eliminarEjercicio(): void {
+    if (!this.ejercicioAEliminar) {
+      return;
+    }
+
+    this._ejerciciosService.deleteEjercicio(this.ejercicioAEliminar.id).subscribe(
+      (data: any) => {
+        console.log('Ejercicio eliminado:', data);
+        // Recargar los ejercicios de la asignatura a la que pertenece
+        const asignaturaId = this.ejercicioAEliminar.asignatura;
+        this.getEjerciciosByAsignatura(asignaturaId);
+        this.closeDeleteConfirmModal();
+      },
+      (error: any) => {
+        console.error('Error al eliminar ejercicio:', error);
+        alert('Error al eliminar el ejercicio');
+      }
+    );
   }
 }

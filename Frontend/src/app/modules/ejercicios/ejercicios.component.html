@@ -38,6 +38,13 @@
                                     title="Realizar ejercicio">
                                     <mat-icon class="text-white">play_arrow</mat-icon>
                                 </button>
+                                <!-- Icono de X para eliminar (profesores) -->
+                                <button *ngIf="user?.role == 'prof'" 
+                                    (click)="openDeleteConfirmModal(ejercicio); $event.stopPropagation()"
+                                    class="absolute top-4 right-4 p-2 bg-red-600 text-white rounded-full hover:bg-red-700 transition-colors opacity-0 group-hover:opacity-100 transition-opacity"
+                                    title="Eliminar ejercicio">
+                                    <mat-icon class="text-white">close</mat-icon>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -521,28 +528,28 @@
                                     <!-- Segundo div: Escenario (centrado horizontalmente con fondo blanco) -->
 
                                             <div class="flex justify-center relative">
-                                                <div style="position: relative; display: inline-block;">
+                                                <div style="position: relative; display: block; width: 1120px; height: 268px;">
                                                     <!-- Imágenes del escenario -->
-                                                    <div style="display: flex;">
-                                                        <img [src]="'assets/escenarios/Tiles/'+ imagenSeleccionadaId +'/r.png'" alt="" style="width: 280px; height: 268px;">
-                                                        <img [src]="'assets/escenarios/Tiles/'+ imagenSeleccionadaId +'/f.png'" alt="" style="width: 280px; height: 268px;">
-                                                        <img [src]="'assets/escenarios/Tiles/'+ imagenSeleccionadaId +'/l.png'" alt="" style="width: 280px; height: 268px;">
-                                                        <img [src]="'assets/escenarios/Tiles/'+ imagenSeleccionadaId +'/b.png'" alt="" style="width: 280px; height: 268px;">
+                                                    <div style="display: flex; width: 100%; height: 100%;">
+                                                        <img [src]="'assets/escenarios/Tiles/'+ imagenSeleccionadaId +'/b.png'" alt="" style="width: 25%; height: 100%; object-fit: cover;">
+                                                        <img [src]="'assets/escenarios/Tiles/'+ imagenSeleccionadaId +'/l.png'" alt="" style="width: 25%; height: 100%; object-fit: cover;">
+                                                        <img [src]="'assets/escenarios/Tiles/'+ imagenSeleccionadaId +'/f.png'" alt="" style="width: 25%; height: 100%; object-fit: cover;">
+                                                        <img [src]="'assets/escenarios/Tiles/'+ imagenSeleccionadaId +'/r.png'" alt="" style="width: 25%; height: 100%; object-fit: cover;">
                                                     </div>
                                                     <!-- Cuadrícula de drop zones horizontal -->
-                                                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: grid; grid-template-rows: repeat(4, 1fr); grid-template-columns: repeat(16, 1fr); gap: 0; border: 2px solid rgba(0, 0, 0, 0.8);">
-                                                        <div *ngFor="let cellIdx of getCellIndices()"
+                                                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: grid; grid-template-rows: repeat(4, 1fr); grid-template-columns: repeat(16, 1fr); gap: 0; border: 2px solid rgba(0, 0, 0, 0.8); overflow: hidden;">
+                                                         <div *ngFor="let cellIdx of getCellIndices()"
                                                             (drop)="onDrop($event, getRowFromIndex(cellIdx), getColFromIndex(cellIdx))"
                                                             (dragover)="onDragOver($event, getRowFromIndex(cellIdx), getColFromIndex(cellIdx))"
                                                             (dragenter)="onDragEnter($event, getRowFromIndex(cellIdx), getColFromIndex(cellIdx))"
                                                             (dragleave)="onDragLeave($event)"
-                                                            style="border: 1px solid rgba(0, 0, 0, 0.4); cursor: pointer; position: relative; min-height: 67px; display: flex; align-items: center; justify-content: center;"
+                                                            style="border: 1px solid rgba(0, 0, 0, 0.4); cursor: pointer; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden;"
                                                             [style.background-color]="getCellBackground(getRowFromIndex(cellIdx), getColFromIndex(cellIdx))"
                                                             (click)="onCellClick(getRowFromIndex(cellIdx), getColFromIndex(cellIdx))">
-                                                            <div *ngIf="getPacienteEnCelda(getRowFromIndex(cellIdx), getColFromIndex(cellIdx))" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 4px;">
+                                                            <div *ngIf="getPacienteEnCelda(getRowFromIndex(cellIdx), getColFromIndex(cellIdx))" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 4px; overflow: hidden;">
                                                                 <img [src]="'assets/pacientes/' + getPacienteEnCelda(getRowFromIndex(cellIdx), getColFromIndex(cellIdx))?.nombre_imagen + '.png'"
                                                                     [alt]="getPacienteEnCelda(getRowFromIndex(cellIdx), getColFromIndex(cellIdx))?.nombre"
-                                                                    style="max-width: 90%; max-height: 90%; object-fit: contain;">
+                                                                    style="max-width: 100%; max-height: 100%; object-fit: contain;">
                                                             </div>
                                                         </div>
                                                     </div>
@@ -579,6 +586,41 @@
                             </mat-step>
                         </mat-stepper>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de Confirmación de Eliminación -->
+        <div *ngIf="showDeleteConfirmModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4">
+            <div class="bg-white rounded-lg shadow-2xl max-w-md w-full">
+                <!-- Header -->
+                <div class="bg-red-50 border-b-2 border-red-200 px-6 py-4">
+                    <h2 class="text-2xl font-bold text-red-600 flex items-center gap-2">
+                        <mat-icon class="text-red-600">warning</mat-icon>
+                        Eliminar Ejercicio
+                    </h2>
+                </div>
+
+                <!-- Content -->
+                <div class="px-6 py-6">
+                    <p class="text-gray-700 mb-2">
+                        ¿Estás seguro de que deseas eliminar el ejercicio <strong>{{ ejercicioAEliminar?.nombre }}</strong>?
+                    </p>
+                    <p class="text-sm text-gray-500 mb-4">
+                        <mat-icon class="text-amber-600 align-middle" style="font-size: 16px; width: 16px; height: 16px;">info</mat-icon>
+                        Esta acción eliminará el ejercicio y todos los datos relacionados (pacientes, imágenes, acciones). Esta acción no se puede deshacer.
+                    </p>
+                </div>
+
+                <!-- Footer -->
+                <div class="bg-gray-50 px-6 py-4 flex justify-end gap-3 rounded-b-lg">
+                    <button mat-button (click)="closeDeleteConfirmModal()" class="text-gray-700 hover:bg-gray-200">
+                        Cancelar
+                    </button>
+                    <button mat-raised-button color="warn" (click)="eliminarEjercicio()" class="px-6">
+                        <mat-icon class="mr-2">delete</mat-icon>
+                        Eliminar
+                    </button>
                 </div>
             </div>
         </div>

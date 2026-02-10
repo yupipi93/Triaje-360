@@ -280,6 +280,87 @@ const locatePacienteInEjercicio = async (idEjercicio, body) => {
         });
 }
 
+const deleteEjercicio = async (ejercicioId) => {
+    return new Promise(async (resolve, reject) => {
+        if (!ejercicioId) {
+            return reject({ status: 400, message: 'El ID del ejercicio es requerido' });
+        }
+
+        try {
+            // Deshabilitar restricciones de clave foránea temporalmente
+            await new Promise((resolveDisable, rejectDisable) => {
+                db.query('SET FOREIGN_KEY_CHECKS=0', (errDisable) => {
+                    if (errDisable) return rejectDisable(errDisable);
+                    resolveDisable();
+                });
+            });
+
+            try {
+                // 1. Eliminar las acciones de los pacientes del ejercicio
+                await new Promise((resolveAcciones, rejectAcciones) => {
+                    db.query('DELETE FROM acciones_paciente_ejercicio WHERE ejercicio_id = ?', [ejercicioId], (errAcciones) => {
+                        if (errAcciones) return rejectAcciones(errAcciones);
+                        resolveAcciones();
+                    });
+                });
+
+                // 2. Eliminar las ubicaciones de los pacientes en el ejercicio
+                await new Promise((resolveUbicacion, rejectUbicacion) => {
+                    db.query('DELETE FROM ubicacion_pacientes_ejercicio WHERE ejercicio = ?', [ejercicioId], (errUbicacion) => {
+                        if (errUbicacion) return rejectUbicacion(errUbicacion);
+                        resolveUbicacion();
+                    });
+                });
+
+                // 3. Eliminar los pacientes del ejercicio
+                await new Promise((resolvePacientes, rejectPacientes) => {
+                    db.query('DELETE FROM pacientes_ejercicio WHERE ejercicio = ?', [ejercicioId], (errPacientes) => {
+                        if (errPacientes) return rejectPacientes(errPacientes);
+                        resolvePacientes();
+                    });
+                });
+
+                // 4. Eliminar las imágenes del ejercicio
+                await new Promise((resolveImagenes, rejectImagenes) => {
+                    db.query('DELETE FROM imagenes_ejercicio WHERE ejercicio = ?', [ejercicioId], (errImagenes) => {
+                        if (errImagenes) return rejectImagenes(errImagenes);
+                        resolveImagenes();
+                    });
+                });
+
+                // 5. Finalmente, eliminar el ejercicio
+                await new Promise((resolveEjercicio, rejectEjercicio) => {
+                    db.query('DELETE FROM ejercicios WHERE id = ?', [ejercicioId], (errEjercicio) => {
+                        if (errEjercicio) return rejectEjercicio(errEjercicio);
+                        resolveEjercicio();
+                    });
+                });
+
+                // Habilitar restricciones de clave foránea
+                await new Promise((resolveEnable, rejectEnable) => {
+                    db.query('SET FOREIGN_KEY_CHECKS=1', (errEnable) => {
+                        if (errEnable) return rejectEnable(errEnable);
+                        resolveEnable();
+                    });
+                });
+
+                resolve({ status: 200, message: 'Ejercicio eliminado correctamente junto con todos sus datos relacionados' });
+            } catch (error) {
+                // Habilitar restricciones incluso si hay error
+                await new Promise((resolveEnable) => {
+                    db.query('SET FOREIGN_KEY_CHECKS=1', () => {
+                        resolveEnable();
+                    });
+                });
+                throw error;
+            }
+        } catch (error) {
+            console.log(error);
+            reject({ status: 500, message: 'Error al eliminar el ejercicio', error: error });
+        }
+    });
+};
+
             module.exports = {
     getAllEjercicios,
     postEjercicio,
@@ -288,6 +369,7 @@ const locatePacienteInEjercicio = async (idEjercicio, body) => {
     getPacientesEjercicio,
     getImagenesFromEjercicio,
     locatePacienteInEjercicio,
-    getEjerciciosFromAsignatura
+    getEjerciciosFromAsignatura,
+    deleteEjercicio
 
 }

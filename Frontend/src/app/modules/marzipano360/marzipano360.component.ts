@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, OnDestroy, ViewChild, Renderer2 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EjerciciosService } from 'app/core/ejercicios/ejercicios.service';
@@ -13,26 +13,36 @@ import { DOCUMENT } from '@angular/common';
   styles: []
 })
 export class Marzipano360Component implements OnInit, OnDestroy {
-  
+  // Offset global para ajustar la orientación del panorama (en radianes)
+  offsetYaw: number = 0;  // Cambiar a Math.PI si los pacientes están invertidos horizontalmente
+
+  // Mapa de posiciones exactas para la rejilla de 4x16
+  posiciones: any[][] = [
+    [{ "yaw": -2.15, "pitch": -0.65 }, { "yaw": -1.95, "pitch": -0.65 }, { "yaw": -1.75, "pitch": -0.65 }, { "yaw": -1.55, "pitch": -0.65 }, { "yaw": -1.35, "pitch": -0.65 }, { "yaw": -1.15, "pitch": -0.65 }, { "yaw": -0.95, "pitch": -0.65 }, { "yaw": -0.75, "pitch": -0.65 }, { "yaw": -0.75, "pitch": -0.55 }, { "yaw": -0.35, "pitch": -1.05 }, { "yaw": 0.15, "pitch": -0.65 }, { "yaw": 0.65, "pitch": -0.65 }, { "yaw": 1.02, "pitch": -0.65 }, { "yaw": 1.65, "pitch": -0.65 }, { "yaw": 2.15, "pitch": -0.65 }, { "yaw": 2.65, "pitch": -0.65 }],
+    [{ "yaw": -2.15, "pitch": -0.75 }, { "yaw": -1.95, "pitch": -0.75 }, { "yaw": -1.75, "pitch": -0.75 }, { "yaw": -1.55, "pitch": -0.75 }, { "yaw": -1.35, "pitch": -0.75 }, { "yaw": -1.15, "pitch": -0.75 }, { "yaw": -0.95, "pitch": -0.75 }, { "yaw": -0.75, "pitch": -0.75 }, { "yaw": -0.75, "pitch": -0.55 }, { "yaw": -0.35, "pitch": -0.95 }, { "yaw": 0.15, "pitch": -0.75 }, { "yaw": 0.65, "pitch": -0.75 }, { "yaw": 1.02, "pitch": -0.75 }, { "yaw": 1.65, "pitch": -0.75 }, { "yaw": 2.15, "pitch": -0.75 }, { "yaw": 2.65, "pitch": -0.75 }],
+    [{ "yaw": -2.15, "pitch": -0.25 }, { "yaw": -1.95, "pitch": -0.25 }, { "yaw": -1.75, "pitch": -0.25 }, { "yaw": -1.55, "pitch": -0.25 }, { "yaw": -1.35, "pitch": -0.25 }, { "yaw": -1.15, "pitch": -0.25 }, { "yaw": -0.95, "pitch": -0.25 }, { "yaw": -0.75, "pitch": -0.25 }, { "yaw": -0.75, "pitch": -0.25 }, { "yaw": -0.35, "pitch": -0.85 }, { "yaw": 0.15, "pitch": -0.25 }, { "yaw": 0.65, "pitch": -0.25 }, { "yaw": 1.02, "pitch": -0.25 }, { "yaw": 1.65, "pitch": -0.25 }, { "yaw": 2.15, "pitch": -0.25 }, { "yaw": 2.65, "pitch": -0.25 }],
+    [{ "yaw": -2.15, "pitch": 0.25 }, { "yaw": -1.95, "pitch": 0.25 }, { "yaw": -1.75, "pitch": 0.25 }, { "yaw": -1.55, "pitch": 0.25 }, { "yaw": -1.35, "pitch": 0.25 }, { "yaw": -1.15, "pitch": 0.25 }, { "yaw": -0.95, "pitch": 0.25 }, { "yaw": -0.75, "pitch": 0.25 }, { "yaw": -0.75, "pitch": 0.25 }, { "yaw": -0.35, "pitch": -0.75 }, { "yaw": 0.15, "pitch": 0.25 }, { "yaw": 0.65, "pitch": 0.25 }, { "yaw": 1.05, "pitch": 0.25 }, { "yaw": 1.65, "pitch": 0.25 }, { "yaw": 2.15, "pitch": 0.25 }, { "yaw": 2.65, "pitch": 0.25 }]
+  ];
+
   @ViewChild('pano', { static: true }) panoElement: ElementRef | undefined;
   ejercicioId: string = '';
-  
+
   pacientesUbicados: any[] = [];
   imagenesEjercicio: any[] = [];
   pacienteSeleccionado: any = null;
   acciones: any[] = [];
   accionesSeleccionadas: any[] = [];
   colorSeleccionado: string = '';
-  tiempoRestante: number = 180; // 180 segundos (3 minutos)
+  tiempoRestante: number = 0; // 160 segundos (3 minutos)
   intervalId: any;
   intervalVerificacionColores: any;
-  
+
   // Mapeo de pacientes a sus elementos de imagen en el marzipano
   pacienteImagenesMap: Map<string, HTMLImageElement> = new Map();
-  
+
   // Orden de colores de mejor a peor
   coloresOrdenados: string[] = ['verde', 'amarillo', 'rojo', 'negro'];
-  
+
   // Mapeo de acciones con sus tiempos en segundos
   tiemposAcciones: { [key: string]: number } = {
     'pls': 30,
@@ -41,7 +51,7 @@ export class Marzipano360Component implements OnInit, OnDestroy {
     'compresion sangrado': 60,
     'Drenaje torácico': 60
   };
-  
+
   // Mapeo de colores a clases de borde
   colorBordeMap: { [key: string]: string } = {
     'negro': 'border-black',
@@ -54,26 +64,27 @@ export class Marzipano360Component implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private ejerciciosService: EjerciciosService,
-    private pacientesService: PacientesService
-  ) {}
+    private pacientesService: PacientesService,
+    private renderer: Renderer2
+  ) { }
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
       this.ejercicioId = params['id'];
       console.log('Ejercicio ID:', this.ejercicioId);
-      
+
       // Obtener acciones disponibles
       this.obtenerAcciones();
-      
+
       // Obtener pacientes del ejercicio (sin color)
       this.obtenerPacientesEjercicio();
-      
+
       // Obtener imágenes del ejercicio en orden
       this.obtenerImagenesEjercicio();
-      
+
       // Iniciar el temporizador
       this.iniciarTemporizador();
-      
+
       // Iniciar verificación de empeoramiento de pacientes
       this.iniciarVerificacionColoresPacientes();
     });
@@ -114,7 +125,14 @@ export class Marzipano360Component implements OnInit, OnDestroy {
           const { color, ...pacienteSinColor } = paciente;
           return pacienteSinColor;
         });
-        console.log('Pacientes ubicados guardados:', this.pacientesUbicados);
+        console.log('=== PACIENTES UBICADOS CARGADOS ===');
+        console.log('Total pacientes:', this.pacientesUbicados.length);
+        this.pacientesUbicados.forEach((p: any, idx: number) => {
+          console.log(`Paciente ${idx}: ${p.nombre}`);
+          console.log(`  - posicion:`, p.posicion);
+          console.log(`  - fila directa:`, p.fila);
+          console.log(`  - columna directa:`, p.columna);
+        });
       },
       error: (error) => {
         console.error('Error al obtener pacientes del ejercicio:', error);
@@ -137,7 +155,7 @@ export class Marzipano360Component implements OnInit, OnDestroy {
         console.error('Error al obtener imágenes del ejercicio:', error);
       }
     });
-    
+
   }
   iniciarMarzipano(imagenesEjercicio): void {
     console.log('Iniciando Marzipano con imágenes:', this.imagenesEjercicio);
@@ -149,7 +167,7 @@ export class Marzipano360Component implements OnInit, OnDestroy {
       const source = Marzipano.ImageUrlSource.fromString(
         `assets/escenarios/Tiles/${imagenesEjercicio[0].nombre_imagen}/{f}.png`
       );
-  
+
       const geometry = new Marzipano.CubeGeometry(
         [
           {
@@ -159,16 +177,16 @@ export class Marzipano360Component implements OnInit, OnDestroy {
         ]
       );
       const view = new Marzipano.RectilinearView();
-      
+
       // Establecer el zoom inicial
       view.setParameters({ fov: Math.PI / 1.5 }); // Ajusta el FOV para el zoom deseado
-      
+
       // Definir límites de zoom
       const minFov = 1.0;  // Máximo zoom permitido (menor FOV = más zoom)
       const maxFov = Math.PI / 1.5;  // FOV inicial (no permitir zoom out)
-      
+
       // Crear limitador personalizado que controle tanto pitch como fov
-      const customLimiter = function(params) {
+      const customLimiter = function (params) {
         // Limitar FOV (zoom)
         if (params.fov !== undefined) {
           params.fov = Math.max(minFov, Math.min(maxFov, params.fov));
@@ -179,7 +197,7 @@ export class Marzipano360Component implements OnInit, OnDestroy {
         }
         return params;
       };
-      
+
       view.setLimiter(customLimiter);
       const scene = viewer.createScene({
         source: source,
@@ -187,13 +205,15 @@ export class Marzipano360Component implements OnInit, OnDestroy {
         view: view
       });
       scene.switchTo();
-      
-      // Crear hotspots para los pacientes ubicados
-      this.crearHotspotsDespacientes(scene);
-}
-else{
+
+      // Crear hotspots después de que la escena esté lista
+      setTimeout(() => {
+        this.crearHotspotsDespacientes(scene);
+      }, 500);
+    }
+    else {
       console.error('El elemento pano no está disponible.');
-}
+    }
   }
 
   /**
@@ -208,11 +228,59 @@ else{
     const hotspotContainer = scene.hotspotContainer();
 
     this.pacientesUbicados.forEach((paciente: any, index: number) => {
-      // Convertir fila y columna a coordenadas Marzipano (yaw, pitch)
-      // La columna controla el yaw (rotación horizontal)
-      // La fila controla el pitch (rotación vertical)
-      const yaw = (paciente.columna || 0) * (Math.PI / 4);  // Factor de conversión para columnas
-      const pitch = (paciente.fila || 0) * (Math.PI / 16);   // Factor de conversión para filas
+      // Debug: Log de paciente completo
+      console.log(`DEBUG Paciente ${index}:`, paciente);
+      console.log(`  fila directa: ${paciente.fila}, columna directa: ${paciente.columna}`);
+      console.log(`  posicion object: ${JSON.stringify(paciente.posicion)}`);
+      
+      // Obtener fila y columna - priorizar posicion.fila/columna si existen
+      let fila = paciente.posicion?.fila;
+      let columna = paciente.posicion?.columna;
+      
+      // Si no existen en posicion, intentar usar los directos
+      if (fila === undefined || fila === null) {
+        fila = paciente.fila;
+      }
+      if (columna === undefined || columna === null) {
+        columna = paciente.columna;
+      }
+      
+      // Convertir a números por si acaso vienen como strings
+      let filaNum = Number(fila);
+      let columnaNum = Number(columna);
+      
+      console.log(`  Valores antes de ajuste: filaNum=${filaNum}, columnaNum=${columnaNum}`);
+      
+      // Validar que no sean NaN
+      if (isNaN(filaNum) || isNaN(columnaNum)) {
+        console.error(`ERROR: Valores inválidos (NaN) para ${paciente.nombre}`);
+        return;
+      }
+      
+      // IMPORTANTE: La BD devuelve valores 1-based (1-4 y 1-16), pero el array está 0-indexed
+      // Convertir a 0-based para indexar correctamente
+      filaNum = filaNum - 1;
+      columnaNum = columnaNum - 1;
+      
+      console.log(`  Valores después de ajuste (0-based): filaNum=${filaNum}, columnaNum=${columnaNum}`);
+      
+      // Validar que fila y columna estén dentro del rango
+      if (filaNum < 0 || filaNum > 3 || columnaNum < 0 || columnaNum > 15) {
+        console.error(`ERROR: Posición fuera de rango para ${paciente.nombre}: fila=${filaNum}, columna=${columnaNum}`);
+        return; // Saltar este paciente
+      }
+      
+      // Obtener la posición exacta del mapa
+      const posicion = this.posiciones[filaNum][columnaNum];
+      if (!posicion) {
+        console.error(`ERROR: No hay posición en posiciones[${filaNum}][${columnaNum}]`);
+        return;
+      }
+      // Aplicar offset global para sincronizar con la rotación
+      const yaw = posicion.yaw + this.offsetYaw;
+      const pitch = posicion.pitch;
+      
+      console.log(`  ✓ Posición asignada: [${filaNum}][${columnaNum}], yaw=${yaw.toFixed(2)}, pitch=${pitch.toFixed(2)}, offsetYaw=${this.offsetYaw.toFixed(2)}`);
 
       // Crear elemento de imagen del paciente (sin fondo)
       const hotspotElement = document.createElement('div');
@@ -293,44 +361,46 @@ else{
     const nombreAccion = (accion.nombre_accion || accion.nombre || accion.name || '').toLowerCase().trim();
     // Usar el tiempo del objeto o buscar en el mapeo
     const tiempoARestar = accion.tiempo || this.tiemposAcciones[nombreAccion] || 0;
-    
+
     console.log('=== DEBUG alternarAccion ===');
     console.log('Acción objeto:', accion);
     console.log('Nombre acción (lowercase):', nombreAccion);
     console.log('Tiempo a restar:', tiempoARestar);
     console.log('Mapeo de tiempos:', this.tiemposAcciones);
     console.log('============================');
-    
+
     if (index > -1) {
-      // Deseleccionar: devolver el tiempo
+      // Deseleccionar: restar el tiempo (liberar el tiempo de la acción)
       this.accionesSeleccionadas.splice(index, 1);
-      this.tiempoRestante += tiempoARestar;
-      console.log(`Acción deseleccionada: ${nombreAccion}, tiempo devuelto: ${tiempoARestar}s, tiempo restante: ${this.tiempoRestante}s`);
-    } else {
-      // Seleccionar: restar el tiempo
-      this.accionesSeleccionadas.push(accion);
       this.tiempoRestante -= tiempoARestar;
-      console.log(`Acción seleccionada: ${nombreAccion}, tiempo restado: ${tiempoARestar}s, tiempo restante: ${this.tiempoRestante}s`);
+      console.log(`Acción deseleccionada: ${nombreAccion}, tiempo liberado: ${tiempoARestar}s, tiempo total: ${this.tiempoRestante}s`);
+    } else {
+      // Seleccionar: sumar el tiempo (registrar que gastas tiempo en esa acción)
+      this.accionesSeleccionadas.push(accion);
+      this.tiempoRestante += tiempoARestar;
+      console.log(`Acción seleccionada: ${nombreAccion}, tiempo sumado: ${tiempoARestar}s, tiempo total: ${this.tiempoRestante}s`);
     }
   }
+
+
 
   /**
    * Selecciona un color para el paciente
    */
   seleccionarColor(color: string): void {
     this.colorSeleccionado = color;
-    
+
     // Actualizar el borde del paciente en el marzipano
     if (this.pacienteSeleccionado && this.pacienteSeleccionado.id) {
       const imgElement = this.pacienteImagenesMap.get(this.pacienteSeleccionado.id);
       if (imgElement) {
         // Remover todas las clases de borde
         imgElement.className = imgElement.className.replace(/border-(black|red-600|yellow-400|green-600|blue-500)/g, '');
-        
+
         // Agregar la nueva clase de borde
         const borderColor = this.colorBordeMap[color] || 'border-blue-500';
         imgElement.classList.add(borderColor);
-        
+
         console.log(`Color actualizado para paciente ${this.pacienteSeleccionado.nombre}: ${color}`);
       }
     }
@@ -359,15 +429,11 @@ else{
   }
 
   /**
-   * Inicia el temporizador de un minuto
+   * Inicia el temporizador (cuenta hacia delante sin límite)
    */
   iniciarTemporizador(): void {
     this.intervalId = setInterval(() => {
-      this.tiempoRestante--;
-      if (this.tiempoRestante <= 0) {
-        clearInterval(this.intervalId);
-        this.mostrarAlertaTiempoTerminado();
-      }
+      this.tiempoRestante++;
     }, 1000);
   }
 
@@ -427,7 +493,7 @@ else{
 
       // Obtener el tiempo de empeoramiento del paciente (en minutos)
       const tiempoEmpeoramiento = paciente.Tempeora || 0;
-      
+
       // Si no hay tiempo de empeoramiento definido, no hacer nada
       if (tiempoEmpeoramiento <= 0) {
         return;
@@ -441,11 +507,11 @@ else{
       if (this.tiempoRestante <= tiempoEmpeoraminutoEnSegundos) {
         const colorActual = paciente.color || 'verde';
         const indiceActual = this.coloresOrdenados.indexOf(colorActual);
-        
+
         // Cambiar al siguiente color (peor) si no es el último (negro)
         if (indiceActual < this.coloresOrdenados.length - 1) {
           const nuevoColor = this.coloresOrdenados[indiceActual + 1];
-          
+
           if (nuevoColor !== colorActual) {
             paciente.color = nuevoColor;
             // Solo guardar en BD, sin actualizar la UI (para que el usuario no se entere)
@@ -464,11 +530,11 @@ else{
     if (imgElement) {
       // Remover todas las clases de borde de color
       imgElement.classList.remove('border-black', 'border-red-600', 'border-yellow-400', 'border-green-600', 'border-transparent');
-      
+
       // Agregar la nueva clase de borde
       const borderColor = this.colorBordeMap[paciente.color] || 'border-transparent';
       imgElement.classList.add(borderColor);
-      
+
       console.log(`Color actualizado automáticamente para paciente ${paciente.nombre}: ${paciente.color}`);
     }
   }
@@ -505,6 +571,31 @@ else{
       }
     }).then((result) => {
       if (result.isConfirmed) {
+        // Guardar el tiempo transcurrido del ejercicio
+        this.guardarTiempoEjercicio();
+      }
+    });
+  }
+
+  /**
+   * Guarda el tiempo transcurrido del ejercicio en la base de datos
+   */
+  guardarTiempoEjercicio(): void {
+    // Obtener el tiempo en minutos y segundos
+    const minutos = Math.floor(this.tiempoRestante / 60);
+    const segundos = this.tiempoRestante % 60;
+
+    console.log(`Guardando tiempo del ejercicio: ${minutos}m ${segundos}s (${this.tiempoRestante}s)`);
+
+    // Llamar al servicio para guardar el tiempo en la BD
+    this.ejerciciosService.guardarTiempoEjercicio(this.ejercicioId, this.tiempoRestante).subscribe({
+      next: (response) => {
+        console.log('Tiempo guardado correctamente:', response);
+        this.volverAEjercicios();
+      },
+      error: (error) => {
+        console.error('Error al guardar el tiempo del ejercicio:', error);
+        // Aún así volver a ejercicios
         this.volverAEjercicios();
       }
     });
@@ -516,6 +607,9 @@ else{
   volverAEjercicios(): void {
     this.router.navigate(['/ejercicios']);
   }
-
 }
+
+
+
+
 
