@@ -18,10 +18,26 @@ export class Marzipano360Component implements OnInit, OnDestroy {
 
   // Mapa de posiciones exactas para la rejilla de 4x16
   posiciones: any[][] = [
-    [{ "yaw": -2.15, "pitch": -0.65 }, { "yaw": -1.95, "pitch": -0.65 }, { "yaw": -1.75, "pitch": -0.65 }, { "yaw": -1.55, "pitch": -0.65 }, { "yaw": -1.35, "pitch": -0.65 }, { "yaw": -1.15, "pitch": -0.65 }, { "yaw": -0.95, "pitch": -0.65 }, { "yaw": -0.75, "pitch": -0.65 }, { "yaw": -0.75, "pitch": -0.55 }, { "yaw": -0.35, "pitch": -1.05 }, { "yaw": 0.15, "pitch": -0.65 }, { "yaw": 0.65, "pitch": -0.65 }, { "yaw": 1.02, "pitch": -0.65 }, { "yaw": 1.65, "pitch": -0.65 }, { "yaw": 2.15, "pitch": -0.65 }, { "yaw": 2.65, "pitch": -0.65 }],
-    [{ "yaw": -2.15, "pitch": -0.75 }, { "yaw": -1.95, "pitch": -0.75 }, { "yaw": -1.75, "pitch": -0.75 }, { "yaw": -1.55, "pitch": -0.75 }, { "yaw": -1.35, "pitch": -0.75 }, { "yaw": -1.15, "pitch": -0.75 }, { "yaw": -0.95, "pitch": -0.75 }, { "yaw": -0.75, "pitch": -0.75 }, { "yaw": -0.75, "pitch": -0.55 }, { "yaw": -0.35, "pitch": -0.95 }, { "yaw": 0.15, "pitch": -0.75 }, { "yaw": 0.65, "pitch": -0.75 }, { "yaw": 1.02, "pitch": -0.75 }, { "yaw": 1.65, "pitch": -0.75 }, { "yaw": 2.15, "pitch": -0.75 }, { "yaw": 2.65, "pitch": -0.75 }],
-    [{ "yaw": -2.15, "pitch": -0.25 }, { "yaw": -1.95, "pitch": -0.25 }, { "yaw": -1.75, "pitch": -0.25 }, { "yaw": -1.55, "pitch": -0.25 }, { "yaw": -1.35, "pitch": -0.25 }, { "yaw": -1.15, "pitch": -0.25 }, { "yaw": -0.95, "pitch": -0.25 }, { "yaw": -0.75, "pitch": -0.25 }, { "yaw": -0.75, "pitch": -0.25 }, { "yaw": -0.35, "pitch": -0.85 }, { "yaw": 0.15, "pitch": -0.25 }, { "yaw": 0.65, "pitch": -0.25 }, { "yaw": 1.02, "pitch": -0.25 }, { "yaw": 1.65, "pitch": -0.25 }, { "yaw": 2.15, "pitch": -0.25 }, { "yaw": 2.65, "pitch": -0.25 }],
-    [{ "yaw": -2.15, "pitch": 0.25 }, { "yaw": -1.95, "pitch": 0.25 }, { "yaw": -1.75, "pitch": 0.25 }, { "yaw": -1.55, "pitch": 0.25 }, { "yaw": -1.35, "pitch": 0.25 }, { "yaw": -1.15, "pitch": 0.25 }, { "yaw": -0.95, "pitch": 0.25 }, { "yaw": -0.75, "pitch": 0.25 }, { "yaw": -0.75, "pitch": 0.25 }, { "yaw": -0.35, "pitch": -0.75 }, { "yaw": 0.15, "pitch": 0.25 }, { "yaw": 0.65, "pitch": 0.25 }, { "yaw": 1.05, "pitch": 0.25 }, { "yaw": 1.65, "pitch": 0.25 }, { "yaw": 2.15, "pitch": 0.25 }, { "yaw": 2.65, "pitch": 0.25 }]
+    [{ "yaw": -2.15, "pitch": -0.65 }, { "yaw": -1.95, "pitch": -0.65 }, { "yaw": -1.75, "pitch": -0.65 }, { "yaw": -1.55, "pitch": -0.65 }, 
+      { "yaw": -1.35, "pitch": -0.65 }, { "yaw": -1.15, "pitch": -0.65 }, { "yaw": -0.95, "pitch": -0.65 }, { "yaw": -0.75, "pitch": -0.65 }, 
+      { "yaw": -0.70, "pitch": -0.57 }, { "yaw": -0.35, "pitch": -1.03 }, { "yaw": 0.15, "pitch": -1.21 }, { "yaw": 0.65, "pitch": -0.65 }, 
+      { "yaw": 1.02, "pitch": -0.65 }, { "yaw": 1.65, "pitch": -0.65 }, { "yaw": 2.15, "pitch": -0.65 }, { "yaw": 2.65, "pitch": -0.65 }],
+
+
+    [{ "yaw": -2.15, "pitch": -0.75 }, { "yaw": -1.95, "pitch": -0.75 }, { "yaw": -1.75, "pitch": -0.75 }, { "yaw": -1.55, "pitch": -0.75 },
+       { "yaw": -1.35, "pitch": -0.75 }, { "yaw": -1.15, "pitch": -0.75 }, { "yaw": -0.95, "pitch": -0.75 }, { "yaw": -0.75, "pitch": -0.75 },
+        { "yaw": -0.70, "pitch": -0.45 }, { "yaw": -0.35, "pitch": -0.95 }, { "yaw": 0.15, "pitch": -1.18}, { "yaw": 0.65, "pitch": -0.75 }, 
+        { "yaw": 1.02, "pitch": -0.75 }, { "yaw": 1.65, "pitch": -0.75 }, { "yaw": 2.15, "pitch": -0.75 }, { "yaw": 2.65, "pitch": -0.75 }],
+
+    [{ "yaw": -2.15, "pitch": -0.25 }, { "yaw": -1.95, "pitch": -0.25 }, { "yaw": -1.75, "pitch": -0.25 }, { "yaw": -1.55, "pitch": -0.25 },
+       { "yaw": -1.35, "pitch": -0.25 }, { "yaw": -1.15, "pitch": -0.25 }, { "yaw": -0.95, "pitch": -0.25 }, { "yaw": -0.75, "pitch": -0.25 }, 
+       { "yaw": -0.70, "pitch": -0.25 }, { "yaw": -0.35, "pitch": -0.85 }, { "yaw": 0.15, "pitch": -1.12 }, { "yaw": 0.65, "pitch": -0.25 },
+        { "yaw": 1.02, "pitch": -0.25 }, { "yaw": 1.65, "pitch": -0.25 }, { "yaw": 2.15, "pitch": -0.25 }, { "yaw": 2.65, "pitch": -0.25 }],
+
+    [{ "yaw": -2.15, "pitch": 0.25 }, { "yaw": -1.95, "pitch": 0.25 }, { "yaw": -1.75, "pitch": 0.25 }, { "yaw": -1.55, "pitch": 0.25 }, 
+      { "yaw": -1.35, "pitch": 0.25 }, { "yaw": -1.15, "pitch": 0.25 }, { "yaw": -0.95, "pitch": 0.25 }, { "yaw": -0.75, "pitch": 0.25 }, 
+      { "yaw": -0.70, "pitch": -0.05 }, { "yaw": -0.35, "pitch": -0.75 }, { "yaw": 0.15, "pitch": -1.08 }, { "yaw": 0.65, "pitch": 0.25 }, 
+      { "yaw": 1.05, "pitch": 0.25 }, { "yaw": 1.65, "pitch": 0.25 }, { "yaw": 2.15, "pitch": 0.25 }, { "yaw": 2.65, "pitch": 0.25 }]
   ];
 
   @ViewChild('pano', { static: true }) panoElement: ElementRef | undefined;
