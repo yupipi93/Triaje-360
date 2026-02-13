@@ -127,24 +127,30 @@ INSERT INTO `ejercicios` (`id`, `nombre`, `descripcion`, `fechaInicio`, `fechaFi
 
 CREATE TABLE `imagenes` (
   `id` varchar(250) NOT NULL,
-  `nombre_imagen` varchar(250) NOT NULL,
-  `descripcion` varchar(250) NOT NULL,
-  `tipo` varchar(250) NOT NULL
+  `nombre_original` varchar(255) NOT NULL,
+  `nombre_archivo` varchar(255) NOT NULL UNIQUE,
+  `tipo` varchar(250) NOT NULL,
+  `fecha_subida` datetime NOT NULL,
+  `descripcion` varchar(255),
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_tipo` (`tipo`),
+  KEY `idx_fecha` (`fecha_subida`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `imagenes`
 --
 
-INSERT INTO `imagenes` (`id`, `nombre_imagen`, `descripcion`, `tipo`) VALUES
-('1', 'paciente1', 'paciente con corte en la clavicula', 'paciente'),
-('2', 'paciente2', 'paciente sangrante con corte profundo en la clavicula', 'paciente'),
-('3', 'paciente3', 'paciente con hematoma en la cabeza', 'paciente'),
-('4', 'paciente4', 'paciente manchado de sangre', 'paciente'),
-('5 ', 'escenario1', 'escenario1', 'escenario'),
-('6', 'escenario2', 'escenario2', 'escenario'),
-('7', 'escenario3', 'escenario3', 'escenario'),
-('8', 'escenario4', 'escenario4', 'escenario');
+INSERT INTO `imagenes` (`id`, `nombre_original`, `nombre_archivo`, `tipo`, `fecha_subida`, `descripcion`) VALUES
+('1', 'paciente1.jpg', 'paciente1.jpg', 'paciente', NOW(), 'paciente con corte en la clavicula'),
+('2', 'paciente2.jpg', 'paciente2.jpg', 'paciente', NOW(), 'paciente sangrante con corte profundo en la clavicula'),
+('3', 'paciente3.jpg', 'paciente3.jpg', 'paciente', NOW(), 'paciente con hematoma en la cabeza'),
+('4', 'paciente4.jpg', 'paciente4.jpg', 'paciente', NOW(), 'paciente manchado de sangre'),
+('5', 'escenario1.jpg', 'escenario1.jpg', 'escenario', NOW(), 'escenario1'),
+('6', 'escenario2.jpg', 'escenario2.jpg', 'escenario', NOW(), 'escenario2'),
+('7', 'escenario3.jpg', 'escenario3.jpg', 'escenario', NOW(), 'escenario3'),
+('8', 'escenario4.jpg', 'escenario4.jpg', 'escenario', NOW(), 'escenario4');
 
 -- --------------------------------------------------------
 
@@ -358,12 +364,6 @@ ALTER TABLE `asignatura`
 ALTER TABLE `ejercicios`
   ADD PRIMARY KEY (`id`),
   ADD KEY `asig` (`asignatura`);
-
---
--- Indices de la tabla `imagenes`
---
-ALTER TABLE `imagenes`
-  ADD PRIMARY KEY (`id`);
 
 --
 -- Indices de la tabla `imagenes_ejercicio`

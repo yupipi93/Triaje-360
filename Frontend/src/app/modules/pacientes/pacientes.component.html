@@ -93,7 +93,7 @@
                                     [class.ring-2]="PacienteForm.get('imagenSeleccionada').value === img.id"
                                     [class.ring-primary-500]="PacienteForm.get('imagenSeleccionada').value === img.id"
                                     (click)="PacienteForm.patchValue({imagenSeleccionada: img.id})">
-                                    <img [src]="'assets/pacientes/'+ img.nombre_imagen + '.png'" [alt]="img.descripcion"
+                                    <img [src]="'assets/pacientes/'+ img.nombre_archivo +'.png' " [alt]="img.descripcion"
                                         class="w-full h-20 object-contain hover:scale-105 transition-transform duration-300 p-1">
                                     <div *ngIf="PacienteForm.get('imagenSeleccionada').value === img.id"
                                         class="absolute inset-0 bg-primary-500 bg-opacity-20 flex items-center justify-center">
@@ -238,7 +238,7 @@
                         <div class="flex items-center">
                             <div
                                 class="flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 text-gray-500 mr-3">
-                                <img [src]="'assets/pacientes/'+ paciente.nombre_imagen + '.png'"
+                                <img [src]="'assets/pacientes/'+ paciente.nombre_archivo +'.png' "
                                     [alt]="paciente.descripcion"
                                     class="w-full h-20 object-contain hover:scale-105 transition-transform duration-300 p-1">
                             </div>

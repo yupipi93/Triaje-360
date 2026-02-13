@@ -1,0 +1,261 @@
+<div class="w-full min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex flex-col">
+  <!-- Encabezado -->
+  <div class="sticky top-0 z-10 bg-white bg-opacity-95 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b border-slate-200 shadow-sm">
+    <div class="px-6 py-4">
+      <h1 class="text-3xl font-bold text-slate-900">Gestor de Imágenes</h1>
+      <p class="text-slate-600 mt-1">Administra y organiza tus imágenes por tipo</p>
+    </div>
+  </div>
+
+  <!-- Contenido Principal -->
+  <div class="flex-1 p-6 max-w-7xl mx-auto w-full pb-12">
+    <!-- Sección Pacientes -->
+    <div class="mb-6">
+      <div (click)="pacientesExpandido = !pacientesExpandido" class="flex items-center justify-between cursor-pointer p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition border border-slate-200">
+        <div class="flex-1">
+          <h2 class="text-2xl font-bold text-slate-900">Imágenes de Pacientes</h2>
+          <p class="text-slate-600 text-sm mt-1">{{ pacientesImages.length }} imagen(es)</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <button
+            (click)="openModal('paciente'); $event.stopPropagation()"
+            class="inline-flex items-center justify-center px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium shadow-md text-sm"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+          </button>
+          <svg [style.transform]="pacientesExpandido ? 'rotate(0deg)' : 'rotate(-180deg)'" class="w-5 h-5 text-slate-600 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Grid de imágenes -->
+      <div *ngIf="pacientesExpandido" class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 mb-6 mt-4 animate-in fade-in duration-300">
+        <div
+          *ngFor="let image of pacientesImagesPaginadas"
+          class="group relative bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition flex flex-col"
+        >
+          <!-- Imagen -->
+          <div class="aspect-square overflow-hidden bg-slate-100">
+            <img
+              [src]="getImagePath(image)"
+              [alt]="image.nombre_original"
+              class="w-full h-full object-cover group-hover:scale-110 transition duration-300"
+            />
+          </div>
+
+          <!-- Información -->
+          <div class="p-1 flex-1 flex flex-col justify-between">
+            <div>
+              <h3 class="font-semibold text-slate-900 text-xs line-clamp-1">{{ image.nombre_original }}</h3>
+            </div>
+            <p class="text-xs text-slate-400 mt-0.5">
+              {{ image.fecha_subida | date: 'dd/MM/yyyy' }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Paginación -->
+      <div *ngIf="pacientesExpandido && pacientesPaginasTotales > 1" class="flex items-center justify-center gap-1 mt-4">
+        <button
+          (click)="pacientesPaginaActual = pacientesPaginaActual - 1"
+          [disabled]="pacientesPaginaActual === 1"
+          class="px-2 py-1 bg-white border border-slate-300 rounded text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
+        >
+          ←
+        </button>
+
+        <div class="flex gap-0.5">
+          <button
+            *ngFor="let page of [1, 2, 3, 4, 5]"
+            [ngIf]="page <= pacientesPaginasTotales"
+            (click)="pacientesPaginaActual = page"
+            [class.bg-blue-600]="pacientesPaginaActual === page"
+            [class.text-white]="pacientesPaginaActual === page"
+            [class.bg-white]="pacientesPaginaActual !== page"
+            [class.text-slate-700]="pacientesPaginaActual !== page"
+            class="px-2 py-1 rounded text-xs font-medium border border-slate-300 hover:bg-slate-50 transition"
+          >
+            {{ page }}
+          </button>
+        </div>
+
+        <button
+          (click)="pacientesPaginaActual = pacientesPaginaActual + 1"
+          [disabled]="pacientesPaginaActual === pacientesPaginasTotales"
+          class="px-2 py-1 bg-white border border-slate-300 rounded text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
+        >
+          →
+        </button>
+
+        <span class="text-xs text-slate-600">
+          {{ pacientesPaginaActual }}/{{ pacientesPaginasTotales }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Sección Escenarios -->
+    <div>
+      <div (click)="escenariosExpandido = !escenariosExpandido" class="flex items-center justify-between cursor-pointer p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition border border-slate-200">
+        <div class="flex-1">
+          <h2 class="text-2xl font-bold text-slate-900">Imágenes de Escenarios</h2>
+          <p class="text-slate-600 text-sm mt-1">{{ escenariosImages.length }} imagen(es)</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <button
+            (click)="openModal('escenario'); $event.stopPropagation()"
+            class="inline-flex items-center justify-center px-3 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium shadow-md text-sm"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+          </button>
+          <svg [style.transform]="escenariosExpandido ? 'rotate(0deg)' : 'rotate(-180deg)'" class="w-5 h-5 text-slate-600 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Grid de imágenes -->
+      <div *ngIf="escenariosExpandido" class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 mb-6 mt-4 animate-in fade-in duration-300">
+        <div
+          *ngFor="let image of escenariosImagesPaginadas"
+          class="group relative bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition flex flex-col"
+        >
+          <!-- Imagen -->
+          <div class="aspect-square overflow-hidden bg-slate-100">
+            <img
+              [src]="getImagePath(image)"
+              [alt]="image.nombre_original"
+              class="w-full h-full object-cover group-hover:scale-110 transition duration-300"
+            />
+          </div>
+
+          <!-- Información -->
+          <div class="p-1 flex-1 flex flex-col justify-between">
+            <div>
+              <h3 class="font-semibold text-slate-900 text-xs line-clamp-1">{{ image.nombre_original }}</h3>
+            </div>
+            <p class="text-xs text-slate-400 mt-0.5">
+              {{ image.fecha_subida | date: 'dd/MM/yyyy' }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Paginación -->
+      <div *ngIf="escenariosExpandido && escenariosPaginasTotales > 1" class="flex items-center justify-center gap-1 mt-4">
+        <button
+          (click)="escenariosPaginaActual = escenariosPaginaActual - 1"
+          [disabled]="escenariosPaginaActual === 1"
+          class="px-2 py-1 bg-white border border-slate-300 rounded text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
+        >
+          ←
+        </button>
+
+        <div class="flex gap-0.5">
+          <button
+            *ngFor="let page of [1, 2, 3, 4, 5]"
+            [ngIf]="page <= escenariosPaginasTotales"
+            (click)="escenariosPaginaActual = page"
+            [class.bg-green-600]="escenariosPaginaActual === page"
+            [class.text-white]="escenariosPaginaActual === page"
+            [class.bg-white]="escenariosPaginaActual !== page"
+            [class.text-slate-700]="escenariosPaginaActual !== page"
+            class="px-2 py-1 rounded text-xs font-medium border border-slate-300 hover:bg-slate-50 transition"
+          >
+            {{ page }}
+          </button>
+        </div>
+
+        <button
+          (click)="escenariosPaginaActual = escenariosPaginaActual + 1"
+          [disabled]="escenariosPaginaActual === escenariosPaginasTotales"
+          class="px-2 py-1 bg-white border border-slate-300 rounded text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
+        >
+          →
+        </button>
+
+        <span class="text-xs text-slate-600">
+          {{ escenariosPaginaActual }}/{{ escenariosPaginasTotales }}
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Upload -->
+<div *ngIf="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+  <div class="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+    <!-- Header Modal -->
+    <div class="sticky top-0 bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
+      <h3 class="text-lg font-bold text-slate-900">
+        Subir imagen de {{ currentImageType === 'paciente' ? 'Paciente' : 'Escenario' }}
+      </h3>
+      <button
+        (click)="closeModal()"
+        class="text-slate-400 hover:text-slate-600 transition"
+      >
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Contenido Modal -->
+    <div class="p-6">
+      <!-- Preview -->
+      <div *ngIf="previewUrl" class="mb-4">
+        <img
+          [src]="previewUrl"
+          alt="Preview"
+          class="w-full h-48 object-cover rounded-lg"
+        />
+        <p class="text-xs text-slate-600 mt-2 break-words">{{ selectedFileName }}</p>
+      </div>
+
+      <!-- Input File -->
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-slate-700 mb-2">Selecciona una imagen</label>
+        <input
+          #fileInput
+          type="file"
+          accept=".png,.jpg,.jpeg"
+          (change)="onFileSelected($event)"
+          class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
+        />
+        <p class="text-xs text-slate-500 mt-2">PNG o JPG, máximo 5MB</p>
+      </div>
+
+      <!-- Mensajes -->
+      <div *ngIf="uploadError" class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+        <p class="text-sm text-red-700">{{ uploadError }}</p>
+      </div>
+
+      <div *ngIf="uploadSuccess" class="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+        <p class="text-sm text-green-700">¡Imagen subida correctamente!</p>
+      </div>
+
+      <!-- Botones -->
+      <div class="flex gap-3">
+        <button
+          (click)="closeModal()"
+          class="flex-1 px-4 py-2 border border-slate-300 rounded-lg text-slate-700 font-medium hover:bg-slate-50 transition"
+        >
+          Cancelar
+        </button>
+        <button
+          (click)="uploadImage()"
+          [disabled]="!selectedFile || isLoading"
+          class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
+        >
+          <span *ngIf="isLoading" class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+          {{ isLoading ? 'Subiendo...' : 'Subir' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

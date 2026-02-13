@@ -22,7 +22,12 @@ export const adminNavigation: FuseNavigationItem[] = [
         type: 'basic',
         icon: 'heroicons_outline:chart-pie',
         link: '/pacientes'
-    }
+    },
+    {id:'image-manager',
+    title: 'Gestor de Imágenes',
+    type: 'basic',
+    icon: 'heroicons_outline:chart-pie',
+    link: '/image-manager'}
 ];
 export const profNavigation: FuseNavigationItem[] = [
     {

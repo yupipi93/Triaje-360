@@ -3,7 +3,7 @@ const config = require('../config').config;
 
 const getPacientes = async () => {
     return new Promise((resolve, reject) => {
-        db.query('SELECT p.*, GROUP_CONCAT(a.nombre_accion SEPARATOR ", ") AS acciones, GROUP_CONCAT(ap.acciones_id) as acciones_ids, i.nombre_imagen FROM Pacientes p LEFT JOIN Acciones_paciente ap ON p.id = ap.paciente_id LEFT JOIN Acciones a ON ap.acciones_id = a.id LEFT JOIN Imagenes i ON p.imagen = i.id GROUP BY p.id', (err, results) => {
+        db.query('SELECT p.*, GROUP_CONCAT(a.nombre_accion SEPARATOR ", ") AS acciones, GROUP_CONCAT(ap.acciones_id) as acciones_ids, i.nombre_archivo FROM Pacientes p LEFT JOIN Acciones_paciente ap ON p.id = ap.paciente_id LEFT JOIN Acciones a ON ap.acciones_id = a.id LEFT JOIN Imagenes i ON p.imagen = i.id GROUP BY p.id', (err, results) => {
             if (err) return reject(err);
 
             // Process results to convert acciones_ids string to array

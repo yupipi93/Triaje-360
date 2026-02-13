@@ -250,7 +250,8 @@ export class EjerciciosComponent implements OnInit {
       this._ejerciciosService.getImagenesFromEjercicio(ejercicio).subscribe((data: any) => {
         console.log(data);
         this.imagenesEscenarios = data;
-        this.imagenSeleccionadaId= data[0].nombre_imagen|| null;
+        this.imagenSeleccionadaId= data[0].nombre_archivo|| null;
+        console.log('Imagen seleccionada al cargar imágenes del ejercicio:', this.imagenSeleccionadaId);
       });
     }
   }
@@ -274,7 +275,7 @@ export class EjerciciosComponent implements OnInit {
 this.ThirdFormGroup.patchValue({ id: this.pacienteSeleccionado.id });
 console.log(this.ThirdFormGroup.value);
      const imagenCorrespondiente = this.imagenesPacientes.find(
-    img => img.nombre_imagen === this.pacienteSeleccionado.nombre_imagen
+    img => img.nombre_archivo === this.pacienteSeleccionado.nombre_archivo
   );
   
   console.log('Imagen correspondiente:', imagenCorrespondiente);
@@ -499,6 +500,7 @@ console.log(this.ThirdFormGroup.value);
    */
   getImagenSeleccionada(): any {
     const imagenId = this.ThirdFormGroup.get('imagenSeleccionada')?.value;
+    console.log('ID de imagen seleccionada:', imagenId);
     return this.imagenesPacientes.find(img => img.id === imagenId);
   }
 
@@ -524,6 +526,7 @@ console.log(this.ThirdFormGroup.value);
    * @param imagenId - El ID de la imagen a seleccionar
    */
   seleccionarImagenEscenario(imagenId: any): void {
+    console.log('Seleccionando imagen de escenario:', imagenId);
     // Guardar el estado actual de pacientes colocados si hay una imagen seleccionada
     if (this.imagenSeleccionadaId && this.imagenSeleccionadaId !== imagenId) {
       // Guardar los pacientes colocados de la imagen anterior
