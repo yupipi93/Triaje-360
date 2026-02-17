@@ -177,36 +177,55 @@ const deleteImage = async (imageId) => {
                     const imageFile = results[0].nombre_archivo;
                     const imageType = results[0].tipo;
                     const imageDir = path.join(__dirname, '../../Frontend/src/assets', `${imageType}s`);
-                    const filePath = path.join(imageDir, imageFile);
 
-                    // Eliminar del sistema de archivos
-                    if (fs.existsSync(filePath)) {
-                        const stats = fs.statSync(filePath);
-                        
-                        if (stats.isDirectory()) {
-                            // Si es un directorio (cubemap), eliminar recursivamente
-                            fs.rmSync(filePath, { recursive: true, force: true });
-                        } else {
-                            // Si es un archivo, eliminar directamente
-                            fs.unlinkSync(filePath);
-                        }
-                    }
-
-                    // Eliminar de la base de datos
-                    db.query(
-                        'DELETE FROM imagenes WHERE id = ?',
-                        [imageId],
-                        (err) => {
-                            if (err) {
-                                return reject({ status: 500, message: 'Error al eliminar la imagen' });
+                    try {
+                        if (imageType === 'paciente') {
+                            // Para pacientes: eliminar archivo .png
+                            const filePath = path.join(imageDir, `${imageFile}.png`);
+                            if (fs.existsSync(filePath)) {
+                                fs.unlinkSync(filePath);
+                            }
+                        } else if (imageType === 'escenario') {
+                            // Para escenarios: eliminar imagen original y carpeta de tiles
+                            
+                            // Eliminar imagen original (puede ser .JPG o .jpg)
+                            let originalFound = false;
+                            const possibleExtensions = ['.JPG', '.jpg', '.jpeg', '.JPEG', '.png', '.PNG'];
+                            
+                            for (const ext of possibleExtensions) {
+                                const filePath = path.join(imageDir, `${imageFile}${ext}`);
+                                if (fs.existsSync(filePath)) {
+                                    fs.unlinkSync(filePath);
+                                    originalFound = true;
+                                    break;
+                                }
                             }
 
-                            resolve({
-                                status: 200,
-                                message: 'Imagen eliminada correctamente'
-                            });
+                            // Eliminar carpeta de tiles si existe
+                            const tilesFolderPath = path.join(imageDir, 'Tiles', imageFile);
+                            if (fs.existsSync(tilesFolderPath)) {
+                                fs.rmSync(tilesFolderPath, { recursive: true, force: true });
+                            }
                         }
-                    );
+
+                        // Eliminar de la base de datos
+                        db.query(
+                            'DELETE FROM imagenes WHERE id = ?',
+                            [imageId],
+                            (err) => {
+                                if (err) {
+                                    return reject({ status: 500, message: 'Error al eliminar la imagen' });
+                                }
+
+                                resolve({
+                                    status: 200,
+                                    message: 'Imagen y tiles eliminados correctamente'
+                                });
+                            }
+                        );
+                    } catch (fileError) {
+                        reject({ status: 500, message: 'Error al eliminar archivos: ' + fileError.message });
+                    }
                 }
             );
         } catch (error) {
@@ -254,7 +273,7 @@ const uploadCubemapTiles = async (originalFile, tileFiles) => {
                 fs.mkdirSync(folderPath, { recursive: true });
             }
 
-            // Guardar los 6 tiles usando el nombre que viene del cliente
+            // Guardar los 6 tiles usando el nombre que viene del cliente (l, r, u, d, b, f)
             let savedCount = 0;
 
             tileFiles.forEach((file) => {

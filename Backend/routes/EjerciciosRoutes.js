@@ -14,6 +14,10 @@ router.get('/resultados/usuario', EjerciciosController.obtenerResultadosUsuario)
 router.get('/resultados/:intentoId', EjerciciosController.obtenerDetallesResultado);
 router.post('/resultados/:intentoId/acciones', EjerciciosController.guardarAccionesIntento);
 
+// Rutas de sonidos (antes de las dinámicas)
+router.post('/sonidos', EjerciciosController.postSonidosToEjercicio);
+router.get('/:ejercicioId/sonidos', EjerciciosController.getSonidosFromEjercicio);
+
 // Rutas dinámicas con parámetros (van después)
 router.get('/:idEjercicio', EjerciciosController.getOneEjercicios);
 router.put('/:idEjercicio', EjerciciosController.updateEjercicio);

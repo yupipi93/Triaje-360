@@ -249,6 +249,35 @@ const guardarAccionesIntento = async (req, res) => {
     });
 };
 
+const postSonidosToEjercicio = async (req, res) => {
+    jwt.comprobartoken(req, res, async function () {
+        if (req.role !== 'admin' && req.role !== 'prof') {
+            return res.status(403).json({ message: 'Acceso denegado' });
+        }
+        try {
+            const result = await EjerciciosService.postSonidosToEjercicio(req.body);
+            res.status(200).json(result);
+        } catch (error) {
+            res.status(500).json({ message: error.message || error });
+        }
+    });
+};
+
+const getSonidosFromEjercicio = async (req, res) => {
+    jwt.comprobartoken(req, res, async function () {
+        if (req.role !== 'admin' && req.role !== 'prof' && req.role !== 'alu') {
+            return res.status(403).json({ message: 'Acceso denegado' });
+        }
+        try {
+            const ejercicioId = req.params.ejercicioId;
+            const sonidos = await EjerciciosService.getSonidosFromEjercicio(ejercicioId);
+            res.status(200).json(sonidos);
+        } catch (error) {
+            res.status(500).json({ message: error.message || error });
+        }
+    });
+};
+
 module.exports = {
     getAllEjercicios,
     postEjercicio,
@@ -266,5 +295,7 @@ module.exports = {
     guardarTiempoEjercicio,
     obtenerResultadosUsuario,
     obtenerDetallesResultado,
-    guardarAccionesIntento
+    guardarAccionesIntento,
+    postSonidosToEjercicio,
+    getSonidosFromEjercicio
 };

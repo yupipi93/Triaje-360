@@ -30,7 +30,7 @@ export class ImageUploadService {
     // Agregar el archivo original
     formData.append('image', originalFile);
     
-    // Agregar cada cara del cubo con su respectivo nombre (f, b, l, r, u, p)
+    // Agregar cada blob del cubo con su nombre (l, r, u, d, b, f)
     Object.entries(faceBlobs).forEach(([faceName, blob]) => {
       formData.append('tiles', blob, `${faceName}.png`);
     });
@@ -59,8 +59,8 @@ export class ImageUploadService {
     
     // Detectar si es un cubemap (contiene "Tiles/")
     if (fileName.includes('Tiles/')) {
-      // Para cubemaps, devolver la ruta al tile frontal (f.png)
-      return `/assets/${imageType}s/${fileName}/f.png`;
+      // Para cubemaps, devolver la ruta al tile 'l' (left)
+      return `/assets/${imageType}s/${fileName}/l.png`;
     }
     
     // Para imágenes normales de pacientes

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EjerciciosService } from 'app/core/ejercicios/ejercicios.service';
 import { PacientesService } from 'app/core/pacientes/pacientes.service';
+import { AudioService } from 'app/core/audio-manager/audio.service';
 import * as Marzipano from 'marzipano';
 import Swal from 'sweetalert2';
 import { DOCUMENT } from '@angular/common';
@@ -76,11 +77,17 @@ export class Marzipano360Component implements OnInit, OnDestroy {
     'verde': 'border-green-600'
   };
 
+  // Propiedades para manejo de sonidos
+  sonidosEjercicio: any[] = [];
+  audioElementos: HTMLAudioElement[] = [];
+  sonidosReproduciendo: boolean = false;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private ejerciciosService: EjerciciosService,
     private pacientesService: PacientesService,
+    private audioService: AudioService,
     private renderer: Renderer2
   ) { }
 
@@ -98,6 +105,9 @@ export class Marzipano360Component implements OnInit, OnDestroy {
       // Obtener imágenes del ejercicio en orden
       this.obtenerImagenesEjercicio();
 
+      // Obtener sonidos del ejercicio
+      this.obtenerSonidosEjercicio();
+
       // Iniciar el temporizador
       this.iniciarTemporizador();
 
@@ -113,6 +123,8 @@ export class Marzipano360Component implements OnInit, OnDestroy {
     if (this.intervalVerificacionColores) {
       clearInterval(this.intervalVerificacionColores);
     }
+    // Detener reproducción de sonidos
+    this.detenerSonidos();
   }
 
   /**
@@ -175,6 +187,126 @@ export class Marzipano360Component implements OnInit, OnDestroy {
     });
 
   }
+
+  /**
+   * Obtiene los sonidos del ejercicio y los reproduce
+   */
+  obtenerSonidosEjercicio(): void {
+    this.audioService.getSonidosFromEjercicio(this.ejercicioId).subscribe({
+      next: (sonidos) => {
+        console.log('Sonidos obtenidos del ejercicio:', sonidos);
+        this.sonidosEjercicio = sonidos;
+        // Reproducir los sonidos cuando se obtienen
+        this.reproducirSonidos();
+      },
+      error: (error) => {
+        console.error('Error al obtener sonidos del ejercicio:', error);
+      }
+    });
+  }
+
+  /**
+   * Reproduce los sonidos del ejercicio en paralelo (todos a la vez)
+   */
+  reproducirSonidos(): void {
+    if (!this.sonidosEjercicio || this.sonidosEjercicio.length === 0) {
+      console.log('No hay sonidos para reproducir');
+      return;
+    }
+
+    console.log('Iniciando reproducción de sonidos en paralelo...');
+    this.sonidosReproduciendo = true;
+
+    // Si ya existen elementos de audio, simplemente reanudar la reproducción
+    if (this.audioElementos.length > 0) {
+      this.audioElementos.forEach(audio => {
+        audio.play().catch(err => {
+          console.warn('Error al reproducir audio:', err);
+        });
+      });
+      this.sonidosReproduciendo = true;
+      console.log('Reanudando reproducción de todos los sonidos...');
+      return;
+    }
+
+    // Limpiar elementos de audio previos
+    this.audioElementos.forEach(audio => audio.pause());
+    this.audioElementos = [];
+
+    // Crear elementos de audio para cada sonido
+    this.sonidosEjercicio.forEach((sonido: any, index: number) => {
+      const audioElement = new Audio();
+      
+      // Construir la ruta del sonido
+      // Si el nombre ya tiene extensión, usarlo así
+      // Si no tiene, intentar con extensiones comunes
+      let rutaSonido = `assets/sonidos/${sonido.nombre_archivo}`;
+      
+      // Verificar si ya tiene extensión de audio
+      const extensionesComunes = ['.mp3', '.wav', '.ogg', '.flac'];
+      const tieneExtension = extensionesComunes.some(ext => 
+        sonido.nombre_archivo.toLowerCase().endsWith(ext)
+      );
+      
+      // Si no tiene extensión, intentar con .mp3 por defecto
+      if (!tieneExtension) {
+        rutaSonido = `assets/sonidos/${sonido.nombre_archivo}.mp3`;
+      }
+      
+      audioElement.src = rutaSonido;
+      audioElement.volume = 0.5; // Volumen al 50%
+      audioElement.preload = 'auto';
+      audioElement.loop = true; // Loop infinito para cada sonido
+
+      // Manejar errores de carga
+      audioElement.addEventListener('error', () => {
+        console.error(`Error al cargar sonido: ${rutaSonido}`);
+        // Si falla con .mp3, intentar con .wav
+        if (rutaSonido.endsWith('.mp3')) {
+          const rutaAlternativa = `assets/sonidos/${sonido.nombre_archivo}.wav`;
+          console.log(`Intentando ruta alternativa: ${rutaAlternativa}`);
+          audioElement.src = rutaAlternativa;
+          audioElement.addEventListener('error', () => {
+            console.error(`Error también con ruta alternativa: ${rutaAlternativa}`);
+          }, { once: true });
+        }
+      });
+
+      this.audioElementos.push(audioElement);
+    });
+
+    // Reproducir todos los sonidos a la vez
+    this.audioElementos.forEach((audio, index) => {
+      audio.play().catch(err => {
+        console.warn(`No se pudo reproducir sonido ${index + 1}:`, err);
+      });
+      console.log(`Reproduciendo sonido ${index + 1}...`);
+    });
+  }
+
+  /**
+   * Detiene la reproducción de todos los sonidos
+   */
+  detenerSonidos(): void {
+    console.log('Deteniendo sonidos...');
+    this.audioElementos.forEach(audio => {
+      audio.pause();
+      audio.currentTime = 0;
+    });
+    this.sonidosReproduciendo = false;
+  }
+
+  /**
+   * Pausa la reproducción de sonidos
+   */
+  pausarSonidos(): void {
+    console.log('Pausando sonidos...');
+    this.audioElementos.forEach(audio => {
+      audio.pause();
+    });
+    this.sonidosReproduciendo = false;
+  }
+
   iniciarMarzipano(imagenesEjercicio): void {
     console.log('Iniciando Marzipano con imágenes:', this.imagenesEjercicio);
     if (this.panoElement) {

@@ -651,6 +651,73 @@ const guardarAccionesIntento = async (intentoId, pacientesAcciones) => {
     });
 };
 
+const postSonidosToEjercicio = async (body) => {
+    return new Promise(async (resolve, reject) => {
+        if (!body || !body.ejercicio || !Array.isArray(body.sonidos)) {
+            return reject({ status: 400, message: 'Body, ejercicio y sonidos son requeridos' });
+        }
+
+        try {
+            // Eliminar sonidos existentes si es edición
+            await new Promise((resolveDelete, rejectDelete) => {
+                db.query('DELETE FROM sonidos_ejercicio WHERE ejercicio_id = ?', [body.ejercicio], (err, results) => {
+                    if (err) return rejectDelete(err);
+                    resolveDelete(results);
+                });
+            });
+
+            // Insertar nuevos sonidos
+            if (body.sonidos.length > 0) {
+                for (let i = 0; i < body.sonidos.length; i++) {
+                    const sonidoId = body.sonidos[i];
+                    try {
+                        await new Promise((resolveSonido, rejectSonido) => {
+                            db.query(
+                                'INSERT INTO sonidos_ejercicio (sonido_id, ejercicio_id, posicion) VALUES (?, ?, ?)',
+                                [sonidoId, body.ejercicio, i + 1],
+                                (err, results) => {
+                                    if (err) return rejectSonido(err);
+                                    resolveSonido(results);
+                                }
+                            );
+                        });
+                    } catch (err) {
+                        console.error("Error al insertar sonido:", err);
+                        return reject({ status: 500, message: "Error al guardar sonidos", error: err });
+                    }
+                }
+            }
+
+            resolve({ status: 200, message: "Sonidos guardados correctamente" });
+        } catch (error) {
+            console.error('Error en postSonidosToEjercicio:', error);
+            reject({ status: 500, message: 'Error al guardar sonidos del ejercicio', error: error });
+        }
+    });
+};
+
+const getSonidosFromEjercicio = async (ejercicioId) => {
+    return new Promise((resolve, reject) => {
+        if (!ejercicioId) {
+            return reject({ status: 400, message: 'ejercicioId es requerido' });
+        }
+
+        db.query(
+            `SELECT s.* FROM sonidos s 
+             INNER JOIN sonidos_ejercicio se ON s.id = se.sonido_id 
+             WHERE se.ejercicio_id = ? 
+             ORDER BY se.posicion ASC`,
+            [ejercicioId],
+            (err, results) => {
+                if (err) {
+                    return reject({ status: 500, message: 'Error al obtener sonidos del ejercicio', error: err });
+                }
+                resolve(results || []);
+            }
+        );
+    });
+};
+
             module.exports = {
     getAllEjercicios,
     postEjercicio,
@@ -667,6 +734,7 @@ const guardarAccionesIntento = async (intentoId, pacientesAcciones) => {
     guardarTiempoEjercicio,
     obtenerResultadosUsuario,
     obtenerDetallesResultado,
-    guardarAccionesIntento
-
+    guardarAccionesIntento,
+    postSonidosToEjercicio,
+    getSonidosFromEjercicio
 }

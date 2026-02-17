@@ -487,6 +487,31 @@ ALTER TABLE `user_asignatura`
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `sonidos_ejercicio`
+--
+
+CREATE TABLE `sonidos_ejercicio` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `sonido_id` varchar(250) NOT NULL,
+  `ejercicio_id` varchar(250) NOT NULL,
+  `posicion` int(11) NOT NULL DEFAULT 1,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_sonido_ejercicio` (`sonido_id`, `ejercicio_id`),
+  KEY `ejercicio_id` (`ejercicio_id`),
+  KEY `sonido_id` (`sonido_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Restricciones para la tabla `sonidos_ejercicio`
+--
+ALTER TABLE `sonidos_ejercicio`
+  ADD CONSTRAINT `fk_sonido_ejercicio` FOREIGN KEY (`sonido_id`) REFERENCES `sonidos` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_ejercicio_sonido` FOREIGN KEY (`ejercicio_id`) REFERENCES `ejercicios` (`id`) ON DELETE CASCADE;
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `intentos_ejercicio`
 --
 

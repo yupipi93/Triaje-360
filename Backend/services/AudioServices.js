@@ -38,7 +38,7 @@ const uploadAudio = async (file) => {
 
             db.query(
                 'INSERT INTO sonidos (id, nombre_original, nombre_archivo, fecha_subida) VALUES (?, ?, ?, ?)',
-                [audioId, file.originalname, uniqueNameWithoutExt, fechaSubida],
+                [audioId, file.originalname, uniqueName, fechaSubida],
                 (err, results) => {
                     if (err) {
                         return reject({ status: 500, message: 'Error al guardar en la base de datos: ' + err.message });

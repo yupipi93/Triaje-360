@@ -17,6 +17,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { FormBuilder, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { EjerciciosService } from 'app/core/ejercicios/ejercicios.service';
 import { PacientesService } from 'app/core/pacientes/pacientes.service';
+import { AudioService } from 'app/core/audio-manager/audio.service';
 @Component({
   selector: 'app-ejercicios',
   standalone: true,
@@ -49,7 +50,7 @@ export class EjerciciosComponent implements OnInit {
   searchTermPacientes: string = '';
   pacientesFiltrados: any[] = [];
   ejerciciosPorAsignatura: { [key: string]: any[] } = {};
-  constructor(private _asignaturasService: AsignaturasService, private _userService: UserService, private _ejerciciosService: EjerciciosService, private _pacientesService: PacientesService, private cdr: ChangeDetectorRef, private _router: Router) { }
+  constructor(private _asignaturasService: AsignaturasService, private _userService: UserService, private _ejerciciosService: EjerciciosService, private _pacientesService: PacientesService, private _audioService: AudioService, private cdr: ChangeDetectorRef, private _router: Router) { }
   private _formBuilder = inject(FormBuilder);
 
   firstFormGroup = this._formBuilder.group({
@@ -65,6 +66,12 @@ export class EjerciciosComponent implements OnInit {
     escenarios: this._formBuilder.control<any[]>([], Validators.required),
     ejercicio: [''],
   });
+
+  thirdFormGroup = this._formBuilder.group({
+    sonidos: this._formBuilder.control<any[]>([], Validators.required),
+    ejercicio: [''],
+  });
+
   ThirdFormGroup = this._formBuilder.group({
     id:['',Validators.required],
     nombre: ['', Validators.required],
@@ -79,6 +86,8 @@ export class EjerciciosComponent implements OnInit {
   imagenesEscenarios: any[] = [];
   imagenesPacientes: any[] = [];
   accionesPaciente: any[] = [];
+  sonidosDisponibles: any[] = [];
+  sonidosSeleccionados: any[] = [];
 
   colorOptions = [
     { value: 'verde', label: 'Verde', hex: '#22c55e' },
@@ -196,13 +205,35 @@ export class EjerciciosComponent implements OnInit {
         console.log(data);
         if (data.status == 200) {
           this.stepper.next();
-          event++;
-          this.getimagenes(event, this.ejercicio);
-          this.getPacientes();
+          this.getimagenes(2, this.ejercicio); // Para cargar sonidos
+          this.getSonidosDisponibles();
         }
       });
     }
     if (event == 3) {
+      // Validar selección de sonidos
+      if (this.thirdFormGroup.get('sonidos')?.value?.length === 0) {
+        this.thirdFormGroup.get('sonidos')?.setErrors({ required: true });
+        this.thirdFormGroup.get('sonidos')?.markAsTouched();
+        alert("Por favor selecciona al menos un sonido");
+        return;
+      }
+      
+      // Guardar sonidos
+      this.thirdFormGroup.patchValue({ ejercicio: this.ejercicio });
+      this._audioService.postSonidosToEjercicio({
+        ejercicio: this.ejercicio,
+        sonidos: this.thirdFormGroup.get('sonidos')?.value || []
+      }).subscribe((data: any) => {
+        console.log(data);
+        if (data.status == 200) {
+          this.stepper.next();
+          this.getimagenes(4, this.ejercicio); // Para cargar imágenes de pacientes
+          // Los pacientes ya fueron cargados en openCreateEjercicioModal
+        }
+      });
+    }
+    if (event == 4) {
       // Verificar si el usuario ha tocado algún campo del formulario
       const formularioTieneDatos = this.ThirdFormGroup.get('nombre')?.value || 
                                     this.ThirdFormGroup.get('descripcion')?.value ||
@@ -225,13 +256,12 @@ export class EjerciciosComponent implements OnInit {
         }
         if (data.length > 0) {
           this.stepper.next();
-          event++;
-          this.getimagenes(event, this.ejercicio);
+          this.getimagenes(5, this.ejercicio);
           this.getPacientesEjercicio();
         }
       });
     }
-    if (event == 4) {
+    if (event == 5) {
       // Guardar las posiciones de los pacientes de todas las imágenes
       let totalPacientesColocados = 0;
       
@@ -300,14 +330,14 @@ export class EjerciciosComponent implements OnInit {
         this.imagenesEscenarios = data;
       });
     }
-    if (event == 3) {
+    if (event == 4) {
       tipo = "paciente"
       this._ejerciciosService.getImagenes(tipo).subscribe((data: any) => {
         console.log(data);
         this.imagenesPacientes = data;
       });
     }
-    if (event == 4 && ejercicio) {
+    if (event == 5 && ejercicio) {
       this.imagenSeleccionadaId = null;
       this._ejerciciosService.getImagenesFromEjercicio(ejercicio).subscribe((data: any) => {
         console.log(data);
@@ -317,7 +347,60 @@ export class EjerciciosComponent implements OnInit {
       });
     }
   }
-  getPacientes(): void {
+
+  getSonidosDisponibles(): void {
+    this._audioService.getAllAudios().subscribe((data: any) => {
+      console.log('Sonidos disponibles:', data);
+      this.sonidosDisponibles = data.data || data.audios || data;
+    }, (error: any) => {
+      console.error('Error al obtener sonidos:', error);
+      this.sonidosDisponibles = [];
+    });
+  }
+
+  toggleSonido(sonidoId: string): void {
+    const sonoControl = this.thirdFormGroup.get('sonidos');
+    const currentSonidos = sonoControl?.value || [];
+    const index = currentSonidos.indexOf(sonidoId);
+
+    if (index === -1) {
+      // Agregar si no está presente
+      sonoControl?.patchValue([...currentSonidos, sonidoId]);
+    } else {
+      // Remover si está presente
+      const newSonidos = currentSonidos.filter((id: string) => id !== sonidoId);
+      sonoControl?.patchValue(newSonidos);
+    }
+
+    // Limpiar el error de required si se selecciona al menos un sonido
+    if ((sonoControl?.value || []).length > 0) {
+      sonoControl?.setErrors(null);
+    }
+  }
+
+  isSonidoSelected(sonidoId: string): boolean {
+    return (this.thirdFormGroup.get('sonidos')?.value || []).includes(sonidoId);
+  }
+
+  openCreateEjercicioModal(asignatura: any): void {
+    this.esEdicion = false;
+    this.selectedAsignaturaId = asignatura.id;
+    console.log('Asignatura seleccionada:', asignatura.id);
+    this.showModal = true;
+    this.firstFormGroup.reset();
+    this.secondFormGroup.reset();
+    this.thirdFormGroup.reset();
+    this.ThirdFormGroup.reset();
+    this.pacientesEjercicio = [];
+    this.pacientesColocados = {};
+    this.pacientesColocadosPorImagen = {};
+    this.intentosLimitados = false;
+    this.empeoramientoLimitado = false;
+    this.ejercicioCompleto = false;
+    this.imagenSeleccionadaId = null;
+    this.getSonidosDisponibles();
+    
+    // Cargar pacientes
     this._pacientesService.getPacientes().subscribe((data: any) => {
       console.log(data);
       this.pacientes = data;
@@ -427,6 +510,7 @@ console.log(this.ThirdFormGroup.value);
     // Resetear formularios
     this.firstFormGroup.reset();
     this.secondFormGroup.reset();
+    this.thirdFormGroup.reset();
     this.ThirdFormGroup.reset();
     this.pacientesEjercicio = [];
     this.pacientesEjercicioOriginal = [];
@@ -470,6 +554,16 @@ console.log(this.ThirdFormGroup.value);
         
         console.log('Escenarios cargados:', escenarioIds);
         console.log('Escenarios completos:', escenarios);
+
+        // Cargar sonidos del ejercicio
+        this._audioService.getSonidosFromEjercicio(ejercicio.id).subscribe((sonidos: any) => {
+          const sonidoIds = sonidos.map((sonido: any) => sonido.id);
+          this.thirdFormGroup.patchValue({
+            sonidos: sonidoIds,
+            ejercicio: ejercicio.id
+          });
+          console.log('Sonidos cargados:', sonidoIds);
+        });
 
         // Cargar pacientes del ejercicio
         this._ejerciciosService.getPacientesEjercicio(ejercicio.id).subscribe((pacientes: any) => {
@@ -538,23 +632,6 @@ console.log(this.ThirdFormGroup.value);
     });
   }
 
-  openCreateEjercicioModal(asig: any): void {
-    this.esEdicion = false;
-    this.selectedAsignaturaId = asig.id;
-    console.log('Asignatura seleccionada:', asig.id);
-    this.showModal = true;
-    this.firstFormGroup.reset();
-    this.secondFormGroup.reset();
-    this.ThirdFormGroup.reset();
-    this.pacientesEjercicio = [];
-    this.pacientesColocados = {};
-    this.pacientesColocadosPorImagen = {};
-    this.intentosLimitados = false;
-    this.empeoramientoLimitado = false;
-    this.ejercicioCompleto = false;
-    this.imagenSeleccionadaId = null;
-  }
-
   closeNewEditModal(): void {
     // Si el ejercicio no fue completado y no estamos editando, eliminarlo
     if (!this.ejercicioCompleto && !this.esEdicion && this.ejercicio) {
@@ -572,6 +649,7 @@ console.log(this.ThirdFormGroup.value);
     this.stepper.reset();
     this.firstFormGroup.reset();
     this.secondFormGroup.reset();
+    this.thirdFormGroup.reset();
     this.ThirdFormGroup.reset();
     this.pacientesEjercicio = [];
     this.pacientesColocados = {};
@@ -611,6 +689,7 @@ console.log(this.ThirdFormGroup.value);
     this._ejerciciosService.getPacientesEjercicio(this.ejercicio).subscribe((data: any) => {
       console.log(data);
       this.pacientesEjercicio = data;
+      this.pacientesEjercicioOriginal = [...data]; // Guardar copia para pacientesDisponibles
     });
   }
 

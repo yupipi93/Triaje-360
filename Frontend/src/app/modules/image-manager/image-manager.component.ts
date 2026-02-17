@@ -192,15 +192,15 @@ export class ImageManagerComponent implements OnInit {
           
           // Extraer los 6 canvas de las caras (en el orden que devuelve la librería)
           const faces = {
-            l: cubeCanvas[0], // left
-            r: cubeCanvas[1], // right
-            d: cubeCanvas[2], // down
-            u: cubeCanvas[3], // up
-            f: cubeCanvas[4], // front
-            b: cubeCanvas[5]  // back
+            l: cubeCanvas[0], // left (0)
+            r: cubeCanvas[1], // right (1)
+            u: cubeCanvas[2], // up (2)
+            d: cubeCanvas[3], // down (3)
+            b: cubeCanvas[4], // back (4)
+            f: cubeCanvas[5]  // front (5)
           };
 
-          // Convertir los canvas a blobs
+          // Convertir los canvas a blobs con sus nombres de letra
           const faceBlobs: { [key: string]: Blob } = {};
           let completedFaces = 0;
 
