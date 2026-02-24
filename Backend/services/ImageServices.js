@@ -45,7 +45,7 @@ const uploadImage = async (file, imageType) => {
             fs.writeFileSync(filePath, fileContent);
 
             // Guardar en BBDD
-            const imagenId = timestamp = Date.now().toString(30) + Math.random().toString(30).substring(2);
+            const imagenId = Date.now().toString(30) + Math.random().toString(30).substring(2);
             const fechaSubida = new Date();
 
             db.query(
@@ -69,6 +69,7 @@ const uploadImage = async (file, imageType) => {
                 }
             );
         } catch (error) {
+            console.error('Error en uploadImage:', error);
             reject({ status: 500, message: error.message || 'Error al guardar el archivo' });
         }
     });

@@ -14,35 +14,33 @@
 
         <!-- Modal -->
         <div *ngIf="showModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4">
-            <div class="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-y-auto ml-8">
-                <!-- Modal Header -->
-                <div
-                    class="sticky top-0 bg-gradient-to-r from-primary-600 to-primary-700 text-white p-6 rounded-t-2xl z-10">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <mat-icon class="text-white">{{ isEditMode ? 'edit' : 'person_add' }}</mat-icon>
-                            <h2 class="text-2xl font-bold">{{ isEditMode ? 'Editar Paciente' : 'Nuevo Paciente' }}</h2>
-                        </div>
-                        <button mat-icon-button (click)="closeNewEditModal()"
-                            class="text-white hover:bg-white/20 rounded-full">
-                            <mat-icon>close</mat-icon>
-                        </button>
-                    </div>
+            <div class="bg-white rounded-lg shadow-2xl w-full max-w-2xl max-h-[90vh] relative overflow-hidden flex flex-col">
+                <!-- Header -->
+                <div class="bg-white border-b border-gray-200 px-8 py-4 flex-shrink-0">
+                    <button class="absolute top-3 right-3 p-2 hover:bg-gray-100 rounded-full transition-colors"
+                        aria-label="Cerrar" (click)="closeNewEditModal()">
+                        <mat-icon class="text-gray-400 hover:text-gray-600"
+                            [svgIcon]="'heroicons_outline:x-mark'"></mat-icon>
+                    </button>
+                    <h2 class="text-2xl font-bold text-gray-800">{{ isEditMode ? 'Editar Paciente' : 'Agregar Paciente' }}</h2>
+                    <p class="text-sm text-gray-500 mt-1">{{ isEditMode ? 'Modifique los datos del paciente' : 'Complete los datos del nuevo paciente' }}</p>
                 </div>
 
-                <!-- Modal Body -->
-                <div class="p-6">
+                <!-- Content -->
+                <div class="px-8 py-4 flex-1 overflow-y-auto">
                     <form [formGroup]="PacienteForm">
                         <!-- Información Básica Section -->
-                        <div class="mb-6">
-                            <h3 class="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
+                        <div class="mb-2">
+                            <h3
+                                class="text-base font-semibold text-gray-700 mb-2 flex items-center gap-2">
                                 <mat-icon class="text-primary-600">info</mat-icon>
                                 Información Básica
                             </h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
                                 <mat-form-field appearance="outline" class="w-full">
                                     <mat-label>Nombre del Paciente</mat-label>
-                                    <input matInput placeholder="Ej: Juan Pérez" formControlName="nombre" required>
+                                    <input matInput placeholder="Ej: Juan Pérez"
+                                        formControlName="nombre" required>
                                     <mat-icon matPrefix class="text-primary-500">person</mat-icon>
                                     <mat-error
                                         *ngIf="PacienteForm.get('nombre').hasError('required') && PacienteForm.get('nombre').touched">El
@@ -55,7 +53,8 @@
                                         <mat-option *ngFor="let colorOption of colorOptions"
                                             [value]="colorOption.value">
                                             <div class="flex items-center gap-2">
-                                                <span class="w-6 h-6 rounded-full border-2 border-gray-300"
+                                                <span
+                                                    class="w-6 h-6 rounded-full border-2 border-gray-300"
                                                     [style.background-color]="colorOption.hex"></span>
                                                 {{ colorOption.label }}
                                             </div>
@@ -79,111 +78,197 @@
                             </mat-form-field>
                         </div>
 
-                        <!-- Selección de Escenario Section -->
-                        <div class="mb-6">
-                            <h3 class="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
+                        <!-- Selección de Imagen Section -->
+                        <div class="mb-2">
+                            <h3
+                                class="text-base font-semibold text-gray-700 mb-2 flex items-center gap-2">
                                 <mat-icon class="text-primary-600">image</mat-icon>
-                                Selección de Escenario
-                            </h3>
-                            <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
-                                <div *ngFor="let img of imagenes"
-                                    class="relative cursor-pointer rounded-lg overflow-hidden border-2 transition-all duration-200"
-                                    [class.border-primary-500]="PacienteForm.get('imagenSeleccionada').value === img.id"
-                                    [class.border-transparent]="PacienteForm.get('imagenSeleccionada').value !== img.id"
-                                    [class.ring-2]="PacienteForm.get('imagenSeleccionada').value === img.id"
-                                    [class.ring-primary-500]="PacienteForm.get('imagenSeleccionada').value === img.id"
-                                    (click)="PacienteForm.patchValue({imagenSeleccionada: img.id})">
-                                    <img [src]="'assets/pacientes/'+ img.nombre_archivo +'.png' " [alt]="img.descripcion"
-                                        class="w-full h-20 object-contain hover:scale-105 transition-transform duration-300 p-1">
-                                    <div *ngIf="PacienteForm.get('imagenSeleccionada').value === img.id"
-                                        class="absolute inset-0 bg-primary-500 bg-opacity-20 flex items-center justify-center">
-                                        <mat-icon class="text-white bg-primary-500 rounded-full p-1"
-                                            style="width: 24px; height: 24px; font-size: 18px;">check</mat-icon>
+                                Imagen de Paciente
+                                <!-- Selected Image Display -->
+                                <div *ngIf="PacienteForm.get('imagenSeleccionada').value"
+                                    class="flex items-center gap-2 ml-auto">
+                                    <div class="w-10 h-10 rounded-lg border-2 border-blue-600 overflow-hidden bg-white flex-shrink-0">
+                                        <img [src]="'assets/pacientes/' + getImagenSeleccionada()?.nombre_archivo+'.png'"
+                                            class="w-full h-full object-contain p-0.5">
                                     </div>
+                                    <button type="button" (click)="openImagenModal()"
+                                        class="p-1 hover:bg-gray-200 rounded-full transition-colors"
+                                        title="Cambiar imagen">
+                                        <mat-icon class="text-blue-600" style="font-size: 18px; width: 18px; height: 18px;">edit</mat-icon>
+                                    </button>
+                                </div>
+                                <!-- Add Image Button -->
+                                <button *ngIf="!PacienteForm.get('imagenSeleccionada').value" type="button" (click)="openImagenModal()"
+                                    class="ml-auto p-1 hover:bg-gray-200 rounded-full transition-colors duration-200">
+                                    <mat-icon class="text-blue-600">add</mat-icon>
+                                </button>
+                            </h3>
+                        </div>
+
+                        <!-- Imagen Modal -->
+                        <div *ngIf="showImagenModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+                            <div class="bg-white rounded-lg shadow-2xl max-w-4xl w-full max-h-96 flex flex-col">
+                                <!-- Modal Header -->
+                                <div class="flex items-center justify-between p-4 border-b border-gray-200">
+                                    <h3 class="text-lg font-semibold text-gray-800">Seleccionar Imagen de Paciente</h3>
+                                    <button type="button" (click)="closeImagenModal()"
+                                        class="p-1 hover:bg-gray-100 rounded-full transition-colors">
+                                        <mat-icon class="text-gray-400">close</mat-icon>
+                                    </button>
+                                </div>
+
+                                <!-- Modal Content - Horizontal Layout -->
+                                <div class="overflow-x-auto flex-1 p-4">
+                                    <div class="flex gap-4 pb-2">
+                                        <button *ngFor="let img of imagenesPacientes"
+                                            type="button"
+                                            (click)="selectImagen(img.id)"
+                                            class="flex-shrink-0 relative cursor-pointer rounded-lg overflow-hidden border-4 transition-all duration-200 hover:scale-105"
+                                            [ngClass]="{'border-blue-500 shadow-lg': PacienteForm.get('imagenSeleccionada').value === img.id, 'border-gray-300': PacienteForm.get('imagenSeleccionada').value !== img.id}">
+                                            <img [src]="'assets/pacientes/'+ img.nombre_archivo+'.png'"
+                                                [alt]="img.descripcion"
+                                                class="w-32 h-32 object-contain p-2">
+                                            <div *ngIf="PacienteForm.get('imagenSeleccionada').value === img.id"
+                                                class="absolute top-1 right-1 bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center">
+                                                <mat-icon style="font-size: 14px; width: 14px; height: 14px;">check</mat-icon>
+                                            </div>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Modal Footer -->
+                                <div class="p-4 border-t border-gray-200 flex justify-end">
+                                    <button type="button" (click)="closeImagenModal()"
+                                        class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition-colors">
+                                        Cerrar
+                                    </button>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Acciones del Paciente Section -->
-                        <div class="mb-6">
-                            <h3 class="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
+                        <div class="mb-2">
+                            <h3
+                                class="text-base font-semibold text-gray-700 mb-2 flex items-center gap-2">
                                 <mat-icon class="text-primary-600">medical_services</mat-icon>
                                 Acciones Médicas
+                                <button type="button" (click)="openAccionesModal()"
+                                    class="ml-auto p-1 hover:bg-gray-200 rounded-full transition-colors duration-200">
+                                    <mat-icon class="text-blue-600">add</mat-icon>
+                                </button>
                             </h3>
-                            <mat-form-field appearance="outline" class="w-full">
-                                <mat-label>Selecciona las acciones necesarias</mat-label>
-                                <mat-select formControlName="accionesPaciente" multiple>
-                                    <mat-option *ngFor="let accion of accionesPacienteOptions" [value]="accion.id">
-                                        {{ accion.nombre_accion }}
-                                    </mat-option>
-                                </mat-select>
-                                <mat-icon matPrefix class="text-primary-500">checklist</mat-icon>
-                                <mat-hint>Puedes seleccionar múltiples acciones (opcional)</mat-hint>
-                            </mat-form-field>
 
-                            <!-- Display selected actions in the modal -->
+                            <!-- Display selected actions as badges -->
                             <div *ngIf="PacienteForm.get('accionesPaciente').value?.length > 0"
-                                class="mt-3 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                                class="p-4 bg-blue-50 rounded-lg border border-blue-200">
                                 <p class="text-sm font-medium text-blue-900 mb-2">Acciones seleccionadas:</p>
                                 <div class="flex flex-wrap gap-2">
-                                    <span *ngFor="let accionId of PacienteForm.get('accionesPaciente').value"
-                                        class="inline-flex items-center gap-1 px-3 py-1 bg-blue-600 text-white rounded-full text-sm font-medium">
-                                        <mat-icon class="text-white"
-                                            style="font-size: 16px; width: 16px; height: 16px;">check_circle</mat-icon>
+                                    <span
+                                        *ngFor="let accionId of PacienteForm.get('accionesPaciente').value"
+                                        class="inline-flex items-center gap-2 px-3 py-1 bg-blue-600 text-white rounded-full text-sm font-medium">
                                         {{ getAccionLabel(accionId) }}
+                                        <button type="button" (click)="removeAccion(accionId)"
+                                            class="hover:bg-blue-700 rounded-full p-0.5 transition-colors">
+                                            <mat-icon style="font-size: 14px; width: 14px; height: 14px;">close</mat-icon>
+                                        </button>
                                     </span>
                                 </div>
                             </div>
                         </div>
 
+                        <!-- Acciones Modal -->
+                        <div *ngIf="showAccionesModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+                            <div class="bg-white rounded-lg shadow-2xl max-w-md w-full max-h-96 flex flex-col">
+                                <!-- Modal Header -->
+                                <div class="flex items-center justify-between p-4 border-b border-gray-200">
+                                    <h3 class="text-lg font-semibold text-gray-800">Seleccionar Acciones</h3>
+                                    <button type="button" (click)="closeAccionesModal()"
+                                        class="p-1 hover:bg-gray-100 rounded-full transition-colors">
+                                        <mat-icon class="text-gray-400">close</mat-icon>
+                                    </button>
+                                </div>
+
+                                <!-- Modal Content -->
+                                <div class="overflow-y-auto flex-1 p-4">
+                                    <div class="space-y-2">
+                                        <button *ngFor="let accion of getAccionesDisponibles()"
+                                            type="button"
+                                            (click)="addAccion(accion.id)"
+                                            class="w-full text-left px-4 py-3 rounded-lg border-2 border-gray-200 hover:border-blue-500 hover:bg-blue-50 transition-all duration-200">
+                                            <div class="flex items-center gap-2">
+                                                <mat-icon class="text-primary-600">check_circle_outline</mat-icon>
+                                                <span class="font-medium text-gray-700">{{ accion.nombre_accion }}</span>
+                                            </div>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Modal Footer -->
+                                <div class="p-4 border-t border-gray-200 flex justify-end">
+                                    <button type="button" (click)="closeAccionesModal()"
+                                        class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition-colors">
+                                        Cerrar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Configuración Avanzada Section -->
-                        <div class="mb-6">
-                            <h3 class="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
+                        <div class="mb-2">
+                            <h3
+                                class="text-base font-semibold text-gray-700 mb-2 flex items-center gap-2">
                                 <mat-icon class="text-primary-600">settings</mat-icon>
                                 Configuración Avanzada
                             </h3>
 
-                            <!-- Checkbox -->
-                            <div class="mb-4 p-4 bg-amber-50 rounded-lg border border-amber-200">
-                                <mat-checkbox [(ngModel)]="intentosLimitados"
-                                    (ngModelChange)="updateNumeroIntentosValidation()"
-                                    [ngModelOptions]="{standalone: true}" color="primary" class="text-sm">
-                                    <span class="font-semibold text-amber-900">El paciente puede empeorar</span>
-                                </mat-checkbox>
-                                <p class="text-xs text-amber-700 mt-2 ml-8">
-                                    <mat-icon class="text-amber-600 align-middle"
-                                        style="font-size: 14px; width: 14px; height: 14px;">info</mat-icon>
-                                    Activa esta opción si deseas establecer un tiempo de empeoramiento
-                                </p>
-                            </div>
+                            <!-- Checkbox y Tiempo de Empeoramiento en fila -->
+                            <div class="flex gap-4 items-start">
+                                <!-- Checkbox (más estrecho) -->
+                                <div class="p-4 bg-amber-50 rounded-lg border border-amber-200 flex-shrink-0">
+                                    <mat-checkbox [(ngModel)]="empeoramientoLimitado"
+                                        (ngModelChange)="updateEmpeoramientoValidation()"
+                                        [ngModelOptions]="{standalone: true}" color="primary"
+                                        class="text-sm">
+                                        <span class="font-semibold text-amber-900">El paciente puede empeorar</span>
+                                    </mat-checkbox>
+                                    <p class="text-xs text-amber-700 mt-2 ml-8">
+                                        <mat-icon class="text-amber-600 align-middle"
+                                            style="font-size: 14px; width: 14px; height: 14px;">info</mat-icon>
+                                        Activa esta opción si deseas establecer un tiempo de empeoramiento
+                                    </p>
+                                </div>
 
-                            <!-- Tiempo de Empeoramiento (condicional) -->
-                            <div *ngIf="intentosLimitados" class="transition-all duration-300 ease-in-out">
-                                <mat-form-field appearance="outline" class="w-full">
-                                    <mat-label>Tiempo de empeoramiento (minutos)</mat-label>
-                                    <input matInput type="number" placeholder="Ej: 5"
-                                        formControlName="tiempoEmpeoramiento" required min="1">
-                                    <mat-icon matPrefix class="text-primary-500">schedule</mat-icon>
-                                    <mat-hint>Tiempo en minutos antes de que el paciente empeore</mat-hint>
-                                    <mat-error
-                                        *ngIf="PacienteForm.get('tiempoEmpeoramiento').hasError('required') && PacienteForm.get('tiempoEmpeoramiento').touched">El
-                                        tiempo de empeoramiento es obligatorio</mat-error>
-                                    <mat-error *ngIf="PacienteForm.get('tiempoEmpeoramiento').hasError('min')">El tiempo
-                                        debe ser mayor a 0</mat-error>
-                                </mat-form-field>
+                                <!-- Tiempo de Empeoramiento (a la derecha cuando se activa) -->
+                                <div *ngIf="empeoramientoLimitado" class="transition-all duration-300 ease-in-out flex-1 pt-4">
+                                    <mat-form-field appearance="outline" class="w-full">
+                                        <mat-label>Tiempo de empeoramiento (minutos)</mat-label>
+                                        <input matInput type="number" placeholder="Ej: 5"
+                                            formControlName="tiempoEmpeoramiento" required min="1">
+                                        <mat-icon matPrefix class="text-primary-500">schedule</mat-icon>
+                                        <mat-hint>Tiempo en minutos antes de que el paciente
+                                            empeore</mat-hint>
+                                        <mat-error
+                                            *ngIf="PacienteForm.get('tiempoEmpeoramiento').hasError('required') && PacienteForm.get('tiempoEmpeoramiento').touched">El
+                                            tiempo de empeoramiento es obligatorio</mat-error>
+                                        <mat-error
+                                            *ngIf="PacienteForm.get('tiempoEmpeoramiento').hasError('min')">El
+                                            tiempo debe ser mayor a 0</mat-error>
+                                    </mat-form-field>
+                                </div>
                             </div>
                         </div>
 
                         <!-- Action Buttons -->
-                        <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
-                            <button mat-stroked-button type="button" (click)="closeNewEditModal()" class="px-6">
-                                <mat-icon>close</mat-icon>
+                        <div class="flex justify-end gap-2 pt-2 border-t border-gray-200">
+                            <button mat-button type="button" (click)="closeNewEditModal()" class="px-4 py-1 text-sm">
                                 Cancelar
                             </button>
-                            <button mat-flat-button color="primary" type="button" (click)="submitForm()" class="px-6">
-                                <mat-icon>{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+                            <button mat-raised-button color="primary" type="button"
+                                (click)="submitForm()" class="px-4 py-1 text-sm"
+                                >
                                 {{ isEditMode ? 'Actualizar' : 'Guardar' }}
                             </button>
+
                         </div>
                     </form>
                 </div>

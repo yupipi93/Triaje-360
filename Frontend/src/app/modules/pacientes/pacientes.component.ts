@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
@@ -32,8 +32,10 @@ export class PacientesComponent implements OnInit {
   // Modal control
   showModal = false;
   showDeleteModal = false;
+  showImagenModal = false;
+  showAccionesModal = false;
   isEditMode = false;
-  intentosLimitados = false;
+  empeoramientoLimitado = false;
   idpaciente = null;
   pacienteToDelete: any = null;
   // Pacientes list
@@ -41,6 +43,7 @@ export class PacientesComponent implements OnInit {
 
   // Acciones del paciente options
   accionesPacienteOptions: any[] = [];
+  accionesPaciente: any[] = [];
 
   // Color options
   colorOptions = [
@@ -50,8 +53,9 @@ export class PacientesComponent implements OnInit {
     { value: 'negro', label: 'Negro', hex: '#000000' }
   ];
 
-  // Image options (static for now)
+  // Image options
   imagenes: any[];
+  imagenesPacientes: any[] = [];
 
   // Helper method to get hex color from color name
   getColorHex(colorName: string): string {
@@ -64,12 +68,12 @@ export class PacientesComponent implements OnInit {
     nombre: ['', Validators.required],
     descripcion: ['', Validators.required],
     color: ['', Validators.required],
-    accionesPaciente: [[]],
+    accionesPaciente: this._formBuilder.control<any[]>([]),
     tiempoEmpeoramiento: [''],
     imagenSeleccionada: [null]
   });
 
-  constructor(private _pacientesService: PacientesService, private _ejerciciosService: EjerciciosService) { }
+  constructor(private _pacientesService: PacientesService, private _ejerciciosService: EjerciciosService, private cdr: ChangeDetectorRef) { }
   ngOnInit(): void {
     this.getimagenesPacientes();
     // Initialize component
@@ -98,9 +102,12 @@ export class PacientesComponent implements OnInit {
   openNewEditModal(): void {
     this.isEditMode = false;
     this.showModal = true;
-    this.intentosLimitados = false;
+    this.empeoramientoLimitado = false;
     this.PacienteForm.reset();
-
+    // Cargar imágenes de pacientes
+    this._ejerciciosService.getImagenes('paciente').subscribe((data: any) => {
+      this.imagenesPacientes = data;
+    });
   }
 
   /**
@@ -120,7 +127,11 @@ export class PacientesComponent implements OnInit {
       imagenSeleccionada: paciente.imagen || null
     });
     this.idpaciente = paciente.id;
-    this.intentosLimitados = paciente.Tempeora > 0;
+    this.empeoramientoLimitado = paciente.Tempeora > 0;
+    // Cargar imágenes de pacientes
+    this._ejerciciosService.getImagenes('paciente').subscribe((data: any) => {
+      this.imagenesPacientes = data;
+    });
   }
 
   /**
@@ -129,7 +140,7 @@ export class PacientesComponent implements OnInit {
   closeNewEditModal(): void {
     this.showModal = false;
     this.PacienteForm.reset();
-    this.intentosLimitados = false;
+    this.empeoramientoLimitado = false;
   }
 
   openDeleteModal(paciente: any, event: Event): void {
@@ -163,7 +174,7 @@ export class PacientesComponent implements OnInit {
    */
   submitForm(): void {
     // Update validation before submitting
-    this.updateNumeroIntentosValidation();
+    this.updateEmpeoramientoValidation();
 
     if (this.PacienteForm.invalid) {
       console.log('Formulario inválido');
@@ -219,18 +230,19 @@ export class PacientesComponent implements OnInit {
     );
   }
   /**
-   * Updates the validation for numeroIntentos based on checkbox state
+   * Updates the validation for tiempoEmpeoramiento based on checkbox state
    */
-  updateNumeroIntentosValidation(): void {
+  updateEmpeoramientoValidation(): void {
     const tiempoEmpeoramiento = this.PacienteForm.get('tiempoEmpeoramiento');
 
-    if (this.intentosLimitados) {
+    if (this.empeoramientoLimitado) {
       tiempoEmpeoramiento?.setValidators([Validators.required, Validators.min(1)]);
     } else {
       tiempoEmpeoramiento?.clearValidators();
       tiempoEmpeoramiento?.setValue('');
     }
     tiempoEmpeoramiento?.updateValueAndValidity();
+    this.cdr.detectChanges();
   }
   getAccionesPaciente() {
     this._pacientesService.getAccionesPaciente().subscribe(
@@ -254,4 +266,89 @@ export class PacientesComponent implements OnInit {
     console.log(this.accionesPacienteOptions);
     return this.accionesPacienteOptions.find(a => a.id == accionId)?.nombre_accion || '';
   }
+
+  /**
+   * Abre el modal de selección de acciones
+   */
+  openAccionesModal(): void {
+    this.showAccionesModal = true;
+  }
+
+  /**
+   * Cierra el modal de selección de acciones
+   */
+  closeAccionesModal(): void {
+    this.showAccionesModal = false;
+  }
+
+  /**
+   * Abre el modal de selección de imagen de paciente
+   */
+  openImagenModal(): void {
+    this.showImagenModal = true;
+  }
+
+  /**
+   * Cierra el modal de selección de imagen de paciente
+   */
+  closeImagenModal(): void {
+    this.showImagenModal = false;
+  }
+
+  /**
+   * Obtiene las acciones disponibles (todas las acciones sin filtrar)
+   * @returns Array de todas las acciones
+   */
+  getAccionesDisponibles(): any[] {
+    return this.accionesPacienteOptions;
+  }
+
+  /**
+   * Agrega una acción a la lista de acciones seleccionadas
+   * @param accionId - El ID de la acción a agregar
+   */
+  addAccion(accionId: number): void {
+    const accionesControl = this.PacienteForm.get('accionesPaciente');
+    const currentAcciones = accionesControl?.value || [];
+    
+    accionesControl?.patchValue([...currentAcciones, accionId]);
+    this.closeAccionesModal();
+  }
+
+  /**
+   * Selecciona una imagen de paciente (una sola imagen permitida)
+   * @param imagenId - El ID de la imagen a seleccionar
+   */
+  selectImagen(imagenId: number): void {
+    this.PacienteForm.patchValue({imagenSeleccionada: imagenId});
+    this.closeImagenModal();
+  }
+
+  /**
+   * Remueve una acción de la lista de acciones seleccionadas (solo una instancia)
+   * @param accionId - El ID de la acción a remover
+   */
+  removeAccion(accionId: number): void {
+    const accionesControl = this.PacienteForm.get('accionesPaciente');
+    const currentAcciones = accionesControl?.value || [];
+    
+    const index = currentAcciones.indexOf(accionId);
+    if (index > -1) {
+      const newAcciones = currentAcciones.slice();
+      newAcciones.splice(index, 1);
+      accionesControl?.patchValue(newAcciones);
+    }
+  }
+
+  /**
+   * Obtiene la imagen de paciente seleccionada
+   * @returns El objeto imagen o undefined
+   */
+  getImagenSeleccionada(): any {
+    const imagenId = this.PacienteForm.get('imagenSeleccionada')?.value;
+    console.log('ID de imagen seleccionada:', imagenId);
+    return this.imagenesPacientes.find(img => img.id === imagenId);
+  }
+
+
 }
