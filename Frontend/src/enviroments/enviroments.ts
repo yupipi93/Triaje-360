@@ -1,7 +1,5 @@
-import { add } from "lodash";
-
 export const environment = {
-    apiUrl: 'http://localhost:3000/api',
+    apiUrl: '/api',
     usr: {
         login: '/users/login',
         all: '/users'
@@ -26,7 +24,6 @@ export const environment = {
         accionesPaciente: '/pacientes/accionesPaciente'
     },
     assets: {
-        assets:'c:/xampp/htdocs/TFG/Frontend/src/assets',
-        //assets:'assets'
+        assets: 'assets',
     }
 };

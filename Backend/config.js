@@ -1,28 +1,30 @@
+const path = require('path');
+
 const config = {
-PORT: 3000,
-MYSQL_PORT: 3306,
-SALT_ROUNDS: 10,
-JWT_SECRET: 'your_jwt_secret_key'};
+  PORT: process.env.PORT || 3000,
+  SALT_ROUNDS: parseInt(process.env.SALT_ROUNDS || '10'),
+  JWT_SECRET: process.env.JWT_SECRET || 'your_jwt_secret_key',
+};
 
 const routes = {
   HOME: '/',
   API: '/api',
-//ASSETS:'C:/xampp/htdocs/triaje-360/assets',
-ASSETS: 'C:/xampp/htdocs/TFG/frontend/src/assets'
+  ASSETS: process.env.ASSETS_PATH || path.join(__dirname, '../Frontend/src/assets'),
 };
 
-  const admin = {
-  email: 'admin@gmail.com',
-  nickname: 'admin',
-  password: 'admin123',
-  role: 'admin'
-  };
+const admin = {
+  email: process.env.ADMIN_EMAIL || 'admin@gmail.com',
+  nickname: process.env.ADMIN_NICKNAME || 'admin',
+  password: process.env.ADMIN_PASSWORD || 'admin123',
+  role: 'admin',
+};
 
 const bbdd = {
-  HOST: 'localhost',
-  USER : 'TFG',
-  PASSWORD : 'cereza2610',
-  DATABASE : 'tfg',
-  PORT: config.MYSQL_PORT
-}
-  module.exports={config,routes,bbdd, admin};
+  HOST: process.env.DB_HOST || 'localhost',
+  USER: process.env.DB_USER || 'TFG',
+  PASSWORD: process.env.DB_PASSWORD || 'cereza2610',
+  DATABASE: process.env.DB_NAME || 'tfg',
+  PORT: parseInt(process.env.DB_PORT || '3306'),
+};
+
+module.exports = { config, routes, bbdd, admin };

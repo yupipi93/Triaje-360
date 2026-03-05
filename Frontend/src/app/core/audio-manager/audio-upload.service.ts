@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from 'enviroments/enviroments';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AudioUploadService {
-  private uploadUrl = 'http://localhost:3000/api/audios/upload';
-  private getAudiosUrl = 'http://localhost:3000/api/audios/bbdd';
+  private uploadUrl = `${environment.apiUrl}/audios/upload`;
+  private getAudiosUrl = `${environment.apiUrl}/audios/bbdd`;
 
   constructor(private http: HttpClient) { }
 
@@ -33,7 +34,6 @@ export class AudioUploadService {
   }
 
   getAudioPath(fileName: string): string {
-    console.log(`Obteniendo ruta para audio: ${fileName}`);
     return `/assets/sonidos/${fileName}`;
   }
 
@@ -43,6 +43,6 @@ export class AudioUploadService {
       ? new HttpHeaders({ 'Authorization': `${token}` })
       : new HttpHeaders();
 
-    return this.http.delete<any>(`http://localhost:3000/api/audios/delete/${audioId}`, { headers });
+    return this.http.delete<any>(`${environment.apiUrl}/audios/delete/${audioId}`, { headers });
   }
 }

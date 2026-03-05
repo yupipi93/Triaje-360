@@ -83,7 +83,7 @@ const listImages = async (imageType) => {
                 return reject({ status: 400, message: 'Tipo de imagen inválido' });
             }
 
-            const typeDir = path.join(__dirname, '../../Frontend/src/assets', `${imageType}s`);
+            const typeDir = path.join(routes.ASSETS, `${imageType}s`);
 
             if (!fs.existsSync(typeDir)) {
                 return resolve({
@@ -115,7 +115,7 @@ const getImage = async (imageType, fileName) => {
                 return reject({ status: 400, message: 'Tipo de imagen inválido' });
             }
 
-            const filePath = path.join(__dirname, '../../Frontend/src/assets', `${imageType}s`, fileName);
+            const filePath = path.join(routes.ASSETS, `${imageType}s`, fileName);
 
             if (!fs.existsSync(filePath)) {
                 return reject({ status: 404, message: 'Archivo no encontrado' });
@@ -178,7 +178,7 @@ const deleteImage = async (imageId) => {
 
                     const imageFile = results[0].nombre_archivo;
                     const imageType = results[0].tipo;
-                    const imageDir = path.join(__dirname, '../../Frontend/src/assets', `${imageType}s`);
+                    const imageDir = path.join(routes.ASSETS, `${imageType}s`);
 
                     try {
                         if (imageType === 'paciente') {

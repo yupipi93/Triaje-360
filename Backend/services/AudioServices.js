@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const db = require('../db');
+const { routes } = require('../config');
 
 const uploadAudio = async (file) => {
     return new Promise((resolve, reject) => {
@@ -9,8 +10,7 @@ const uploadAudio = async (file) => {
                 return reject({ status: 400, message: 'No se seleccionó ningún archivo' });
             }
 
-            // Crear carpeta en Frontend/src/assets si no existe
-            const baseDir = path.join(__dirname, '../../Frontend/src/assets');
+            const baseDir = routes.ASSETS;
             const audioDir = path.join(baseDir, 'sonidos');
 
             if (!fs.existsSync(baseDir)) {
@@ -64,7 +64,7 @@ const uploadAudio = async (file) => {
 const listAudios = async () => {
     return new Promise((resolve, reject) => {
         try {
-            const audioDir = path.join(__dirname, '../../Frontend/src/assets', 'sonidos');
+            const audioDir = path.join(routes.ASSETS, 'sonidos');
 
             if (!fs.existsSync(audioDir)) {
                 return resolve({
@@ -90,7 +90,7 @@ const listAudios = async () => {
 const getAudio = async (fileName) => {
     return new Promise((resolve, reject) => {
         try {
-            const filePath = path.join(__dirname, '../../Frontend/src/assets', 'sonidos', fileName);
+            const filePath = path.join(routes.ASSETS, 'sonidos', fileName);
 
             if (!fs.existsSync(filePath)) {
                 return reject({ status: 404, message: 'Archivo no encontrado' });
@@ -147,7 +147,7 @@ const deleteAudio = async (audioId) => {
                     }
 
                     const audioFile = results[0].nombre_archivo;
-                    const audioDir = path.join(__dirname, '../../Frontend/src/assets', 'sonidos');
+                    const audioDir = path.join(routes.ASSETS, 'sonidos');
                     const filePath = path.join(audioDir, audioFile);
 
                     // Eliminar del sistema de archivos
